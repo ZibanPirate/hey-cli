@@ -7,6 +7,10 @@ struct Args {
     /// Print version information
     #[arg(short, long)]
     version: bool,
+
+    /// Prompt to ask
+    #[arg()]
+    prompt: Vec<String>,
 }
 
 fn main() {
@@ -16,4 +20,5 @@ fn main() {
         const VERSION: &str = env!("CARGO_PKG_VERSION");
         println!("Version: {}", VERSION);
     }
+    println!("Prompt: {}", args.prompt.join(" "));
 }
