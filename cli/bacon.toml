@@ -1,0 +1,2 @@
+[jobs.install]
+command = ["cargo", "install", "--path", ".", "--color", "always"]
