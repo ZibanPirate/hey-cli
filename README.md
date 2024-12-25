@@ -2,9 +2,24 @@
 
 Ask your CLI, next command will be auto-generated.
 
-## Deploy server
+## Usage
+
+install it
 
 ```sh
-docker build --platform linux/amd64 . -t build_rust
-docker run --platform linux/amd64 -v (pwd):/root/code -it build_rust
+cargo install hey-cli-app
 ```
+
+ask it
+
+```sh
+hey show cpu usage
+```
+
+## Contributing
+
+Contributions are welcome, please read [`CONTRIBUTING.md`](https://github.com/ZibanPirate/hey-cli/blob/main/CONTRIBUTING.md) to get started.
+
+## License
+
+Licensed under MIT (twitter: [@zibanpirate](https://twitter.com/zibanpirate)).
