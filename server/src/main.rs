@@ -48,9 +48,17 @@ async fn main() {
 async fn get_cli_prompt(
     Query(query): Query<GetCliPromptRequestQuery>,
 ) -> Json<GetCliPromptResponse> {
+    let prompt = generate_cli_prompt(query.q).await;
+
+    Json(GetCliPromptResponse { prompt })
+}
+
+#[tracing::instrument(ret)]
+async fn generate_cli_prompt(user_message: String) -> CliPrompt {
     let openai_key = std::env::var("OPENAI_KEY").unwrap();
     let openai_organization_id = std::env::var("OPENAI_ORGANIZATION_ID").unwrap();
 
+    // TODO: save the client in a global state
     let config = OpenAIConfig::new()
         .with_api_key(openai_key)
         .with_org_id(openai_organization_id);
@@ -74,7 +82,7 @@ async fn get_cli_prompt(
             )
             .into(),
 
-            ChatCompletionRequestUserMessage::from(query.q).into(),
+            ChatCompletionRequestUserMessage::from(user_message).into(),
         ])
         .build()
         .expect("Failed to build request");
@@ -91,7 +99,7 @@ async fn get_cli_prompt(
 
     let prompt = CliPrompt { value };
 
-    Json(GetCliPromptResponse { prompt })
+    prompt
 }
 
 #[tracing::instrument]
