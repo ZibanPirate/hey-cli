@@ -6,7 +6,7 @@ authors = ["ZibanPirate <zakman.dev@gmail.com>"]
 description = "Ask your CLI, next command will be auto-generated."
 license = "MIT"
 repository = "https://github.com/ZibanPirate/hey-cli"
-readme = "README.md"
+readme = "../README.md"
 keywords = ["cli", "assistant", "ai"]
 categories = ["command-line-utilities"]
 

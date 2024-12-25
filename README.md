@@ -13,7 +13,7 @@ cargo install hey-cli-app
 ask it
 
 ```sh
-hey show cpu usage
+hey show cpu usage on my mac
 ```
 
 ## Contributing
