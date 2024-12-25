@@ -1,0 +1,5 @@
+[jobs.run]
+command = ["cargo", "run", "--color", "always"]
+background = false
+on_change_strategy = "kill_then_restart"
+need_stdout = true
