@@ -1,3 +1,3 @@
 # hey-cli
 
-ask your CLI, next command will be auto-generated.
+Ask your CLI, next command will be auto-generated.
