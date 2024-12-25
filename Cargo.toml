@@ -1,3 +1,11 @@
 [workspace]
 resolver = "2"
-members = ["cli", "server"]
+members = ["cli", "common", "server"]
+
+[workspace.dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.42", features = ["rt-multi-thread", "macros"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+reqwest = { version = "0.12", features = ["json"] }

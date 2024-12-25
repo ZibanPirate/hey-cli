@@ -1,5 +1,5 @@
 use axum::{extract::Query, routing::get, Json, Router};
-use serde::{Deserialize, Serialize};
+use common::{CliPrompt, GetCliPromptRequestQuery, GetCliPromptResponse};
 
 #[tokio::main]
 async fn main() {
@@ -22,21 +22,6 @@ async fn main() {
     tracing::info!("Server: http://{}", bind);
 
     axum::serve(listener, app).await.unwrap();
-}
-
-#[derive(Serialize)]
-struct CliPrompt {
-    value: String,
-}
-
-#[derive(Serialize)]
-struct GetCliPromptResponse {
-    prompt: CliPrompt,
-}
-
-#[derive(Deserialize)]
-struct GetCliPromptRequestQuery {
-    q: String,
 }
 
 async fn get_cli_prompt(

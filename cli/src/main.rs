@@ -1,4 +1,5 @@
 use clap::Parser;
+use common::GetCliPromptResponse;
 use std::fs;
 use std::fs::OpenOptions;
 use std::io::Write;
@@ -15,12 +16,19 @@ struct Args {
     /// Which shell to use
     shell: Option<String>,
 
-    /// Prompt to ask
+    /// Your ask
     #[arg()]
-    prompt: Vec<String>,
+    ask: Vec<String>,
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
+    // converts tracing records to stdout logs in debug mode
+    #[cfg(debug_assertions)]
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::TRACE)
+        .init();
+
     let args = Args::parse();
 
     if args.version {
@@ -68,5 +76,19 @@ fn main() {
         return;
     }
 
-    println!("echo \"{}\"", args.prompt.join(" "));
+    let ask = args.ask.join(" ");
+    tracing::info!("Prompt: {ask}");
+
+    let url = format!("http://0.0.0.0:3000/cli-prompt?q={}", ask);
+    let resp = reqwest::get(url).await.expect("Could not get response");
+    let resp = resp
+        .json::<GetCliPromptResponse>()
+        .await
+        .expect("Could not get response");
+    tracing::debug!("repo: {resp:#?}");
+
+    let output_prompt = resp.prompt.value;
+
+    tracing::info!("Ready.");
+    println!("{output_prompt}");
 }
