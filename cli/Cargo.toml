@@ -1,7 +1,11 @@
 [package]
-name = "hey"
+name = "hey-cli"
 version = "0.1.0"
 edition = "2021"
+
+[[bin]]
+name = "hey"
+path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4.5.23", features = ["derive"] }
@@ -10,4 +14,4 @@ tokio = { workspace = true }
 reqwest = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
-common = { path = "../common" }
+hey-cli-common = { path = "../common" }

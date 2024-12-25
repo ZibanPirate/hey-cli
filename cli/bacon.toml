@@ -1,5 +1,5 @@
 [jobs.install]
-command = ["cargo", "install", "--path", ".", "--color", "always"]
+command = ["cargo", "install", "--force", "--path", ".", "--color", "always"]
 allow_warnings = true
 
 [jobs.hey-1]

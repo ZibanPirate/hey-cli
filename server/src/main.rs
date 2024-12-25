@@ -7,8 +7,8 @@ use async_openai::{
     Client,
 };
 use axum::{extract::Query, routing::get, Json, Router};
-use common::{CliPrompt, GetCliPromptRequestQuery, GetCliPromptResponse};
 use dotenv::dotenv;
+use hey_cli_common::{CliPrompt, GetCliPromptRequestQuery, GetCliPromptResponse};
 
 #[tokio::main]
 async fn main() {

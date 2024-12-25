@@ -304,13 +304,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b63caa9aa9397e2d9480a9b13673856c78d8ac123288526c37d7839f2a86990"
 
 [[package]]
-name = "common"
-version = "0.1.0"
-dependencies = [
- "serde",
-]
-
-[[package]]
 name = "core-foundation"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -658,13 +651,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
-name = "hey"
+name = "hey-cli"
 version = "0.1.0"
 dependencies = [
  "clap",
- "common",
  "dirs",
+ "hey-cli-common",
  "reqwest",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "hey-cli-common"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "hey-cli-server"
+version = "0.1.0"
+dependencies = [
+ "async-openai",
+ "axum",
+ "dotenv",
+ "hey-cli-common",
  "tokio",
  "tracing",
  "tracing-subscriber",
@@ -1609,19 +1622,6 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
-]
-
-[[package]]
-name = "server"
-version = "0.1.0"
-dependencies = [
- "async-openai",
- "axum",
- "common",
- "dotenv",
- "tokio",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]

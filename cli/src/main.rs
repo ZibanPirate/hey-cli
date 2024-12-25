@@ -1,5 +1,5 @@
 use clap::Parser;
-use common::GetCliPromptResponse;
+use hey_cli_common::GetCliPromptResponse;
 use std::fs;
 use std::fs::OpenOptions;
 use std::io::Write;

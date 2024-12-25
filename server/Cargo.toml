@@ -1,7 +1,12 @@
 [package]
-name = "server"
+name = "hey-cli-server"
 version = "0.1.0"
 edition = "2021"
+publish = false
+
+[[bin]]
+name = "server"
+path = "src/main.rs"
 
 [dependencies]
 # TODO: use .8 when it's released
@@ -9,6 +14,6 @@ axum = "=0.8.0-rc.1"
 tokio = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
-common = { path = "../common" }
+hey-cli-common = { path = "../common" }
 dotenv = "0.15"
 async-openai = "0.26"
