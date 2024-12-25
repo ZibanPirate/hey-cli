@@ -2,6 +2,13 @@
 name = "hey-cli-common"
 version = "0.1.0"
 edition = "2021"
+authors = ["ZibanPirate <zakman.dev@gmail.com>"]
+description = "Common code for hey-cli"
+license = "MIT"
+repository = "https://github.com/ZibanPirate/hey-cli"
+readme = "README.md"
+keywords = ["cli", "assistant", "ai"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 serde = { workspace = true }
