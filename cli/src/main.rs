@@ -79,6 +79,9 @@ async fn main() {
     let ask = args.ask.join(" ");
     tracing::info!("Prompt: {ask}");
 
+    #[cfg(not(debug_assertions))]
+    let server_url = "http://134.209.220.76";
+    #[cfg(debug_assertions)]
     let server_url = "http://0.0.0.0:3000";
 
     #[cfg(debug_assertions)]
