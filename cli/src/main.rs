@@ -31,9 +31,10 @@ fn main() {
 
     if args.shell.is_none() {
         println!("Setting up hey in your shells");
-        let setup = include_str!("../../scripts/setup_hey.fish").to_string();
+        let setup = include_str!("../../scripts/setup_hey_cli.fish").to_string();
+        let fish_setup_relative_path = ".config/fish/functions/setup_hey_cli.fish";
         let home_dir = dirs::home_dir().expect("Could not find home directory");
-        let fish_setup_path = home_dir.join(".config/fish/functions/setup_hey.fish");
+        let fish_setup_path = home_dir.join(fish_setup_relative_path);
         fs::create_dir_all(fish_setup_path.parent().unwrap())
             .expect("Could not create directories");
         let mut file = OpenOptions::new()
@@ -53,8 +54,12 @@ fn main() {
 
         let config_content = fs::read_to_string(&fish_config_path).expect("Could not read file");
 
-        if !config_content.contains("source ~/.config/fish/functions/setup_hey.fish") {
-            file.write_all(b"\nsource ~/.config/fish/functions/setup_hey.fish\n")
+        let config_source_line = format!("source ~/{}", fish_setup_relative_path);
+        if !config_content.contains(&config_source_line) {
+            if !config_content.ends_with("\n") {
+                file.write_all(b"\n").expect("Could not write to file");
+            }
+            file.write_all(config_source_line.as_bytes())
                 .expect("Could not write to file");
         }
 
