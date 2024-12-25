@@ -1,6 +1,6 @@
 [package]
 name = "hey-cli-server"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 publish = false
 
@@ -17,3 +17,5 @@ tracing-subscriber = { workspace = true }
 hey-cli-common = { workspace = true }
 dotenv = "0.15"
 async-openai = "0.26"
+sentry = "0.35.0"
+sentry-tracing = "0.35.0"

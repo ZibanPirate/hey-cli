@@ -9,19 +9,26 @@ use async_openai::{
 use axum::{extract::Query, routing::get, Json, Router};
 use dotenv::dotenv;
 use hey_cli_common::{CliPrompt, GetCliPromptRequestQuery, GetCliPromptResponse};
+use tracing_subscriber::prelude::*;
 
 #[tokio::main]
 async fn main() {
-    // converts tracing records to stdout logs
-    #[cfg(debug_assertions)] // debug mode
-    let max_log_level = tracing::Level::DEBUG;
-    #[cfg(not(debug_assertions))] // release mode
-    let max_log_level = tracing::Level::WARN;
-    tracing_subscriber::fmt()
-        .with_max_level(max_log_level)
-        .init();
-
     dotenv().ok();
+
+    let sentry_dsn = std::env::var("SENTRY_DSN").unwrap();
+    let _guard = sentry::init((
+        sentry_dsn,
+        sentry::ClientOptions {
+            release: sentry::release_name!(),
+            traces_sample_rate: 1.0,
+            ..Default::default()
+        },
+    ));
+
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::fmt::layer())
+        .with(sentry_tracing::layer())
+        .init();
 
     let app = Router::new()
         .route("/cli-prompt", get(get_cli_prompt))
@@ -37,6 +44,7 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
+#[tracing::instrument]
 async fn get_cli_prompt(
     Query(query): Query<GetCliPromptRequestQuery>,
 ) -> Json<GetCliPromptResponse> {
@@ -86,6 +94,7 @@ async fn get_cli_prompt(
     Json(GetCliPromptResponse { prompt })
 }
 
+#[tracing::instrument]
 async fn health() -> &'static str {
     tracing::info!("Health check: OK");
     "OK"
