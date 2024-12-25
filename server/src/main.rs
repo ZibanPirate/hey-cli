@@ -15,7 +15,11 @@ use tracing_subscriber::prelude::*;
 async fn main() {
     dotenv().ok();
 
+    let ts = tracing_subscriber::registry().with(tracing_subscriber::fmt::layer());
+
+    #[cfg(not(debug_assertions))]
     let sentry_dsn = std::env::var("SENTRY_DSN").unwrap();
+    #[cfg(not(debug_assertions))]
     let _guard = sentry::init((
         sentry_dsn,
         sentry::ClientOptions {
@@ -24,11 +28,10 @@ async fn main() {
             ..Default::default()
         },
     ));
+    #[cfg(not(debug_assertions))]
+    let ts = ts.with(sentry_tracing::layer());
 
-    tracing_subscriber::registry()
-        .with(tracing_subscriber::fmt::layer())
-        .with(sentry_tracing::layer())
-        .init();
+    ts.init();
 
     let app = Router::new()
         .route("/cli-prompt", get(get_cli_prompt))
