@@ -21,4 +21,4 @@ tokio = { workspace = true }
 reqwest = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
-hey-cli-common = { path = "../common" }
+hey-cli-common = { path = "../common", workspace = true }

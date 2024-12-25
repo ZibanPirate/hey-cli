@@ -39,7 +39,7 @@ async fn main() {
 
     if args.shell.is_none() {
         println!("Setting up hey in your shells");
-        let setup = include_str!("../../scripts/setup_hey_cli.fish").to_string();
+        let setup = include_str!("../scripts/setup_hey_cli.fish").to_string();
         let fish_setup_relative_path = ".config/fish/functions/setup_hey_cli.fish";
         let home_dir = dirs::home_dir().expect("Could not find home directory");
         let fish_setup_path = home_dir.join(fish_setup_relative_path);

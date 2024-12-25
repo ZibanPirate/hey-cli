@@ -14,6 +14,6 @@ axum = "=0.8.0-rc.1"
 tokio = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
-hey-cli-common = { path = "../common" }
+hey-cli-common = { workspace = true }
 dotenv = "0.15"
 async-openai = "0.26"
