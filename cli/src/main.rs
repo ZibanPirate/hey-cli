@@ -79,7 +79,28 @@ async fn main() {
     let ask = args.ask.join(" ");
     tracing::info!("Prompt: {ask}");
 
-    let url = format!("http://0.0.0.0:3000/cli-prompt?q={}", ask);
+    let server_url = "http://0.0.0.0:3000";
+
+    #[cfg(debug_assertions)]
+    {
+        // wait on /health and retry every 1 seconds
+        let url = format!("{server_url}/health");
+        loop {
+            let resp = reqwest::get(&url).await;
+            match resp {
+                Ok(_) => {
+                    tracing::info!("Server is up.");
+                    break;
+                }
+                Err(e) => {
+                    tracing::warn!("Server is not up yet: {e}");
+                    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+                }
+            }
+        }
+    }
+
+    let url = format!("{server_url}/cli-prompt?q={ask}");
     let resp = reqwest::get(url).await.expect("Could not get response");
     let resp = resp
         .json::<GetCliPromptResponse>()
