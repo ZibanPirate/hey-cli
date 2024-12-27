@@ -5,7 +5,7 @@ set -e
 
 # map to rust target
 if [ "$OS" = "Windows_NT" ]; then
-	target="x86_64-pc-windows-msvc"
+	target="x86_64-pc-windows-msvc.exe"
 else
 	case $(uname -sm) in
 	"Darwin x86_64") target="x86_64-apple-darwin" ;;
@@ -17,7 +17,7 @@ fi
 
 # vars
 # TODO: implement
-hey_cli_uri="https://github.com/ZibanPirate/sysmon/releases/latest/download/hey_cli-${target}"
+hey_cli_uri="https://github.com/ZibanPirate/hey-cli/releases/latest/download/hey_cli-${target}"
 hey_cli_install="${HEY_CLI_INSTALL:-$HOME/.hey_cli}"
 bin_dir="$hey_cli_install/bin"
 exe="$bin_dir/hey"
