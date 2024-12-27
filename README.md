@@ -2,18 +2,26 @@
 
 Ask your CLI, next command will be auto-generated.
 
-## Usage
+## Install
 
-install it
+**With Shell:**
 
 ```sh
-cargo install hey-cli-app
+curl -fsSL http://hey_cli.zak-man.com/install.sh | sh
 ```
+
+**With PowerShell:**
+
+```powershell
+irm http://hey_cli.zak-man.com/install.ps1 | iex
+```
+
+## Usage
 
 ask it
 
 ```sh
-hey show cpu usage on my mac
+hey show cpu usage
 ```
 
 the next prompt will be auto-generated 🪄:
@@ -24,7 +32,7 @@ top -o cpu -s 5
 
 ## Features
 
-- [x] it just works, no setup needed
+- [x] it just works, no setup or registration needed
 - [ ] extends its capabilities by extensions
 - [x] supported shells
     - [x] fish

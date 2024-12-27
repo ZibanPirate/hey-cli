@@ -35,7 +35,8 @@ async fn main() {
 
     let app = Router::new()
         .route("/cli-prompt", get(get_cli_prompt))
-        .route("/health", get(health));
+        .route("/health", get(health))
+        .route("/install.sh", get(get_install_script));
 
     let fallback_port = "3000";
     let port = std::env::var("PORT").unwrap_or(fallback_port.to_string());
@@ -109,4 +110,10 @@ async fn generate_cli_prompt(user_message: String) -> CliPrompt {
 async fn health() -> &'static str {
     tracing::info!("Health check: OK");
     "OK"
+}
+
+#[tracing::instrument]
+async fn get_install_script() -> &'static str {
+    let content = include_str!("scripts/install.sh");
+    content
 }

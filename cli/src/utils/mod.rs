@@ -249,7 +249,7 @@ impl PortTrait for Mutex<Port> {
         use urlencoding::encode;
 
         #[cfg(not(debug_assertions))]
-        let server_url = "http://134.209.220.76";
+        let server_url = "http://hey_cli.zak-man.com";
         #[cfg(debug_assertions)]
         let server_url = "http://0.0.0.0:3000";
 
