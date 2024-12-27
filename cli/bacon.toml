@@ -2,6 +2,13 @@
 command = ["cargo", "install", "--force", "--path", ".", "--color", "always"]
 allow_warnings = true
 
+[jobs.test]
+command = ["cargo", "test", "--color", "always"]
+need_stdout = true
+allow_warnings = true
+background = false
+on_change_strategy = "kill_then_restart"
+
 [jobs.hey-1]
 command = [
     "cargo",

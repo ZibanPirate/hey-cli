@@ -1,118 +1,331 @@
+#![feature(pattern)]
+#![feature(string_remove_matches)]
+
+mod call_server;
+mod check_ask;
+mod check_setup;
+mod generate_context;
+mod parse_args;
+mod prompt;
+mod setup_script;
+mod utils;
+mod what_to_do;
+
+use anyhow::Result;
 use clap::Parser;
-use hey_cli_common::GetCliPromptResponse;
-use std::fs;
-use std::fs::OpenOptions;
-use std::io::Write;
-
-/// Ask your CLI, next command will be auto-generated.
-#[derive(Parser, Debug)]
-#[command( about, long_about = None)]
-struct Args {
-    /// Print version information
-    #[arg(short, long)]
-    version: bool,
-
-    #[arg(long)]
-    /// Which shell to use
-    shell: Option<String>,
-
-    /// Your ask
-    #[arg()]
-    ask: Vec<String>,
-}
+use parse_args::ParseArgs;
+use std::sync::Mutex;
+use utils::{Port, PortTrait, State};
+use what_to_do::{
+    WhatToDoAfterCheckSetup, WhatToDoAfterParseArgs, WhatToDoAfterParseArgsInternalAction,
+};
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
     // converts tracing records to stdout logs in debug mode
     #[cfg(debug_assertions)]
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::TRACE)
         .init();
 
-    let args = Args::parse();
+    let parse_args = ParseArgs::parse();
+    let port = Port::new_mutex();
 
-    if args.version {
-        const VERSION: &str = env!("CARGO_PKG_VERSION");
-        println!("hey {}", VERSION);
-        return;
-    }
+    run(parse_args, &port).await?;
 
-    if args.shell.is_none() {
-        println!("Setting up hey in your shells");
-        let setup = include_str!("../scripts/setup_hey_cli.fish").to_string();
-        let fish_setup_relative_path = ".config/fish/functions/setup_hey_cli.fish";
-        let home_dir = dirs::home_dir().expect("Could not find home directory");
-        let fish_setup_path = home_dir.join(fish_setup_relative_path);
-        fs::create_dir_all(fish_setup_path.parent().unwrap())
-            .expect("Could not create directories");
-        let mut file = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .open(&fish_setup_path)
-            .expect("Could not open file");
-        file.write_all(setup.as_bytes())
-            .expect("Could not write to file");
+    let std_out = port.to_stdout_format();
+    println!("{}", std_out.into());
+    Ok(())
+}
 
-        let fish_config_path = home_dir.join(".config/fish/config.fish");
-        let mut file = OpenOptions::new()
-            .write(true)
-            .append(true)
-            .open(&fish_config_path)
-            .expect("Could not open file");
-
-        let config_content = fs::read_to_string(&fish_config_path).expect("Could not read file");
-
-        let config_source_line = format!("source ~/{}", fish_setup_relative_path);
-        if !config_content.contains(&config_source_line) {
-            if !config_content.ends_with("\n") {
-                file.write_all(b"\n").expect("Could not write to file");
+async fn run(args: ParseArgs, port: &Mutex<Port>) -> Result<()> {
+    let what_to_do = args.next(port).await?;
+    match what_to_do {
+        WhatToDoAfterParseArgs::PrintVersion {
+            cli_version,
+            setup_version,
+        } => {
+            port.log(format!("hey-cli {cli_version}"));
+            if let Some(setup_version) = setup_version {
+                port.log(format!("setup-script {setup_version}"));
             }
-            file.write_all(config_source_line.as_bytes())
-                .expect("Could not write to file");
         }
-
-        println!("upserted file: {}", fish_setup_path.to_str().unwrap());
-        println!("Please restart your shell to see the changes");
-        return;
-    }
-
-    let ask = args.ask.join(" ");
-    tracing::info!("Prompt: {ask}");
-
-    #[cfg(not(debug_assertions))]
-    let server_url = "http://134.209.220.76";
-    #[cfg(debug_assertions)]
-    let server_url = "http://0.0.0.0:3000";
-
-    #[cfg(debug_assertions)]
-    {
-        // wait on /health and retry every 1 seconds
-        let url = format!("{server_url}/health");
-        loop {
-            let resp = reqwest::get(&url).await;
-            match resp {
-                Ok(_) => {
-                    tracing::info!("Server is up.");
-                    break;
+        // TODO: test this branch
+        WhatToDoAfterParseArgs::Internal {
+            input,
+            action: what_to_do,
+        } => match what_to_do {
+            WhatToDoAfterParseArgsInternalAction::GetStdout => {
+                // TODO: move `hey-cli-prompt-start` to a constant
+                let everything_before_prompt = match input.contains("hey-cli-prompt-start") {
+                    true => input.split("hey-cli-prompt-start").next().unwrap(),
+                    false => &input,
                 }
-                Err(e) => {
-                    tracing::warn!("Server is not up yet: {e}");
-                    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+                .trim();
+
+                port.log(everything_before_prompt);
+            }
+            WhatToDoAfterParseArgsInternalAction::GetPrompt => {
+                let everything_after_prompt =
+                    input.split("hey-cli-prompt-start").last().unwrap().trim();
+                port.log(everything_after_prompt);
+            }
+        },
+        WhatToDoAfterParseArgs::CheckSetup(check_setup) => {
+            let what_to_do = check_setup.next(port).await?;
+            match what_to_do {
+                WhatToDoAfterCheckSetup::SetupScript(setup_script) => {
+                    setup_script.next(port).await?;
+                }
+                WhatToDoAfterCheckSetup::CheckAsk(check_ask) => {
+                    let generate_context = check_ask.next(port).await?;
+                    let call_server = generate_context.next(port).await?;
+                    let prompt = call_server.next(port).await?;
+                    prompt.next(port).await?;
                 }
             }
         }
     }
 
-    let url = format!("{server_url}/cli-prompt?q={ask}");
-    let resp = reqwest::get(url).await.expect("Could not get response");
-    let resp = resp
-        .json::<GetCliPromptResponse>()
-        .await
-        .expect("Could not get response");
-    tracing::debug!("repo: {resp:#?}");
+    Ok(())
+}
 
-    let output_prompt = resp.prompt.value;
+#[cfg(test)]
+mod end_to_end_tests {
+    use crate::{
+        parse_args::ParseArgs,
+        run,
+        utils::{Port, PortTrait},
+    };
 
-    tracing::info!("Ready.");
-    println!("{output_prompt}");
+    const VERSION: &str = env!("CARGO_PKG_VERSION");
+    // TODO: make sure to check stdout on all tests
+
+    #[tokio::test]
+    async fn version_flag() {
+        let port = Port::new_mutex();
+        let res = run(ParseArgs::default(), &port).await;
+        assert!(res.is_ok());
+        let stdout = port.to_stdout_format();
+        assert_eq!(stdout.into(), format!("hey-cli {VERSION}"));
+    }
+
+    #[tokio::test]
+    async fn version_flag_shell_name() {
+        let port = Port::new_mutex();
+        let res = run(
+            ParseArgs {
+                version: true,
+                shell_name: Some("fish".to_string()),
+                ..Default::default()
+            },
+            &port,
+        )
+        .await;
+        assert!(res.is_ok());
+        let stdout = port.to_stdout_format();
+        assert_eq!(stdout.into(), format!("hey-cli {VERSION}"));
+    }
+
+    #[tokio::test]
+    async fn version_flag_setup_version() {
+        let port = Port::new_mutex();
+        let res = run(
+            ParseArgs {
+                version: true,
+                setup_version: Some("1.0.0".to_string()),
+                ..Default::default()
+            },
+            &port,
+        )
+        .await;
+        assert!(res.is_ok());
+        let stdout = port.to_stdout_format();
+        assert_eq!(stdout.into(), format!("hey-cli {VERSION}"));
+    }
+
+    #[tokio::test]
+    async fn version_flag_shell_name_setup_version() {
+        let port = Port::new_mutex();
+        let res = run(
+            ParseArgs {
+                version: true,
+                shell_name: Some("fish".to_string()),
+                setup_version: Some("1.0.0".to_string()),
+                ..Default::default()
+            },
+            &port,
+        )
+        .await;
+        assert!(res.is_ok());
+        let stdout = port.to_stdout_format();
+        assert_eq!(
+            stdout.into(),
+            format!("hey-cli {VERSION}\nsetup-script fish@1.0.0")
+        );
+    }
+
+    #[tokio::test]
+    async fn ask_no_shell_no_supported_shell_available() {
+        let port = Port::new_mutex();
+        let res = run(
+            ParseArgs {
+                ask: vec![
+                    "print".to_string(),
+                    "working".to_string(),
+                    "directory".to_string(),
+                ],
+                ..Default::default()
+            },
+            &port,
+        )
+        .await;
+        assert!(res.is_err());
+        let error = res.unwrap_err();
+        assert_eq!(error.to_string(), "No supported shell detected");
+    }
+
+    #[tokio::test]
+    async fn ask_no_shell_inside_fish_shell() {
+        let port = Port::new_mutex_with_env_vars(vec![("FISH_VERSION", "1.2.3")]);
+        let res = run(
+            ParseArgs {
+                ask: vec![
+                    "print".to_string(),
+                    "working".to_string(),
+                    "directory".to_string(),
+                ],
+                ..Default::default()
+            },
+            &port,
+        )
+        .await;
+
+        assert!(res.is_ok());
+        let stdout = port.to_stdout_format();
+        assert_eq!(
+            stdout.into(),
+            "Setup script not installed\nInstalling setup script for shell: fish\nSetup script installed successfully\nPlease open new terminal session"
+        );
+    }
+
+    #[tokio::test]
+    async fn ask_with_shell_with_different_setup_version() {
+        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let res = run(
+            ParseArgs {
+                shell_name: Some("fish".to_string()),
+                setup_version: Some("some-different-version".to_string()),
+                ask: vec![
+                    "print".to_string(),
+                    "working".to_string(),
+                    "directory".to_string(),
+                ],
+                ..Default::default()
+            },
+            &port,
+        )
+        .await;
+
+        assert!(res.is_ok());
+        let stdout = port.to_stdout_format();
+        assert_eq!(
+            stdout.into(),
+            "Setup script outdated\nInstalling setup script for shell: fish\nSetup script installed successfully\nPlease open new terminal session"
+        );
+    }
+
+    #[tokio::test]
+    async fn ask_no_shell_inside_not_yet_supported_shells() {
+        let not_yet_supported_shells = vec![
+            ("bash", "BASH_VERSION", "1.2.3"),
+            ("zsh", "ZSH_VERSION", "1.2.3"),
+            ("power_shell", "PSModulePath", "/tmp/.../Modules:/usr/..."),
+        ];
+
+        for (shell_name, env_var, env_value) in not_yet_supported_shells {
+            let port = Port::new_mutex_with_env_vars(vec![(env_var, env_value)]);
+            let res = run(
+                ParseArgs {
+                    ask: vec![
+                        "print".to_string(),
+                        "working".to_string(),
+                        "directory".to_string(),
+                    ],
+                    ..Default::default()
+                },
+                &port,
+            )
+            .await;
+
+            assert!(res.is_err());
+            let error = res.unwrap_err();
+            assert_eq!(
+                error.to_string(),
+                format!("{shell_name} shell is not yet supported")
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn ask_with_shell_invalid_ask() {
+        let long_ask = "fish ".repeat(21);
+        let invalid_asks = vec![
+            (
+                "print\nworking\ndirectory",
+                "Invalid ask: new line character is not allowed",
+            ),
+            (
+                long_ask.trim(),
+                "Invalid ask: max length of 100 characters reached",
+            ),
+        ];
+        for (ask, error_message) in invalid_asks {
+            let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+            let res = run(
+                ParseArgs {
+                    shell_name: Some("fish".to_string()),
+                    setup_version: Some("0.1.0".to_string()),
+                    ask: ask.split(" ").map(|s| s.to_string()).collect(),
+                    ..Default::default()
+                },
+                &port,
+            )
+            .await;
+
+            assert!(res.is_err());
+            let error = res.unwrap_err();
+            assert_eq!(error.to_string(), error_message);
+        }
+    }
+
+    #[tokio::test]
+    async fn ask_with_shell() {
+        tracing_subscriber::fmt()
+            .with_max_level(tracing::Level::TRACE)
+            .init();
+
+        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let res = run(
+            ParseArgs {
+                shell_name: Some("fish".to_string()),
+                setup_version: Some("0.1.0".to_string()),
+                ask: vec![
+                    "print".to_string(),
+                    "working".to_string(),
+                    "directory".to_string(),
+                ],
+                ..Default::default()
+            },
+            &port,
+        )
+        .await;
+
+        assert!(res.is_ok());
+        let stdout = port.to_stdout_format();
+        assert_eq!(
+            stdout.into(),
+            format!("\nhey-cli-prompt-start\necho \"print working directory\"")
+        );
+    }
 }

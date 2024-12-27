@@ -10,3 +10,7 @@ tracing = "0.1"
 tracing-subscriber = "0.3"
 reqwest = { version = "0.12", features = ["json"] }
 hey-cli-common = { path = "./common", version = "0.1.0" }
+anyhow = "1.0"
+nest_struct = "0.5"
+strum_macros = "0.26"
+strum = "0.26"
