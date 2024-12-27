@@ -19,8 +19,9 @@ jobs:
             target: aarch64-apple-darwin
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
+          # TODO: fix OpenSSL build on aarch64
+          # - os: ubuntu-latest
+          #   target: aarch64-unknown-linux-gnu
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -28,11 +29,6 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
       - name: Install missing target
         run: rustup target add ${{ matrix.target }}
-      - name: Install build dependencies
-        if: matrix.target == 'aarch64-unknown-linux-gnu'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential gcc-aarch64-linux-gnu unzip pkg-config libssl-dev curl openssh-client
       - name: Build binary
         env:
           PKG_CONFIG_ALLOW_CROSS: "1"
