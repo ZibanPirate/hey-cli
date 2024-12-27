@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = ["cli", "common", "server"]
+# TODO: unpublish cli and common
 
 [workspace.dependencies]
 serde = { version = "1.0", features = ["derive"] }

@@ -1,4 +1,5 @@
 [package]
+# TODO: optimize size
 name = "hey-cli-app"
 version = "0.1.3"
 edition = "2024"

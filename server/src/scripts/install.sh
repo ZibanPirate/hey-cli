@@ -16,8 +16,7 @@ else
 fi
 
 # vars
-# TODO: implement
-hey_cli_uri="https://github.com/ZibanPirate/hey-cli/releases/latest/download/hey_cli-${target}"
+hey_cli_uri="https://github.com/ZibanPirate/hey-cli/releases/latest/download/hey-${target}"
 hey_cli_install="${HEY_CLI_INSTALL:-$HOME/.hey_cli}"
 bin_dir="$hey_cli_install/bin"
 exe="$bin_dir/hey"
