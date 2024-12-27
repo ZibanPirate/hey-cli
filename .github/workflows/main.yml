@@ -56,3 +56,4 @@ jobs:
         with:
           draft: true
           files: dist/**
+          tag_name: ${{ github.event.head_commit.timestamp }}
