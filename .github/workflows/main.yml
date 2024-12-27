@@ -23,6 +23,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@nightly
+      - name: Install missing target
+        run: rustup target add ${{ matrix.target }}
       - name: Build binary
         run: cargo build --release --target ${{ matrix.target }} --manifest-path ./cli/Cargo.toml
       - name: Upload artifact
