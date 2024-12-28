@@ -1,7 +1,6 @@
 [package]
-# TODO: optimize size
 name = "hey-cli-app"
-version = "0.1.6"
+version = "0.1.7"
 edition = "2024"
 authors = ["ZibanPirate <zakman.dev@gmail.com>"]
 description = "Ask your CLI, next command will be auto-generated."
@@ -15,12 +14,6 @@ categories = ["command-line-utilities"]
 name = "hey"
 path = "src/main.rs"
 
-[profile.release]
-strip = true
-opt-level = "z"
-lto = true
-codegen-units = 1
-
 [dependencies]
 tracing-subscriber = { workspace = true }
 clap = { version = "4.5", features = [
@@ -31,7 +24,7 @@ dirs = "5.0"
 tokio = { workspace = true }
 reqwest = { workspace = true }
 tracing = { workspace = true, features = ["release_max_level_info"] }
-hey-cli-common = { path = "../common", workspace = true }
+hey-cli-common = { workspace = true }
 anyhow = { workspace = true }
 nest_struct = { workspace = true }
 strum_macros = { workspace = true }

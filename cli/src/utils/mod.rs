@@ -1,7 +1,7 @@
 use anyhow::Result;
 use hey_cli_common::{GetCliPromptRequestQuery, GetCliPromptResponse};
 use nest_struct::nest_struct;
-use std::{collections::HashMap, path::PathBuf, str::pattern::Pattern, sync::Mutex};
+use std::{collections::HashMap, path::Path, str::pattern::Pattern, sync::Mutex};
 use strum_macros::{Display, EnumString};
 
 pub trait State<N> {
@@ -26,7 +26,6 @@ pub struct Shell {
 impl Shell {
     pub fn expected_setup_version(&self) -> &str {
         match self.name {
-            // for fish: search for `set version x.x.x`
             ShellName::Fish => self
                 .name
                 .setup_script_content()
@@ -38,7 +37,7 @@ impl Shell {
                         None
                     }
                 })
-                .expect(&format!("Could not find setup version for {:}", self.name)),
+                .unwrap_or_else(|| panic!("Could not find setup version for {:}", self.name)),
             _ => todo!("implement expected_setup_version for {:}", self.name),
         }
     }
@@ -112,10 +111,9 @@ pub trait PortTrait {
     fn set_final_prompt(&self, prompt: String);
     fn to_stdout_format(&self) -> impl Into<String>;
     fn get_env_var(&self, key: &str) -> Option<String>;
-    fn overwrite_file(&self, path: &PathBuf, content: &str) -> Result<()>;
-    fn remove_matches_from_file_content(&self, path: &PathBuf, pattern: impl Pattern)
-    -> Result<()>;
-    fn append_to_file(&self, path: &PathBuf, content: &str) -> Result<()>;
+    fn overwrite_file(&self, path: &Path, content: &str) -> Result<()>;
+    fn remove_matches_from_file_content(&self, path: &Path, pattern: impl Pattern) -> Result<()>;
+    fn append_to_file(&self, path: &Path, content: &str) -> Result<()>;
     async fn ask_server_for_prompt(
         &self,
         query: GetCliPromptRequestQuery,
@@ -149,15 +147,15 @@ impl PortTrait for Mutex<Port> {
 
     fn get_env_var(&self, key: &str) -> Option<String> {
         let port = self.lock().unwrap();
-        port.env_vars.get(key).map(|s| s.clone())
+        port.env_vars.get(key).cloned()
     }
 
     #[cfg(test)]
-    fn overwrite_file(&self, _: &PathBuf, _: &str) -> Result<()> {
+    fn overwrite_file(&self, _: &Path, _: &str) -> Result<()> {
         Ok(())
     }
     #[cfg(not(test))]
-    fn overwrite_file(&self, path: &PathBuf, content: &str) -> Result<()> {
+    fn overwrite_file(&self, path: &Path, content: &str) -> Result<()> {
         use std::io::prelude::Write;
 
         if let Some(parent) = path.parent() {
@@ -167,6 +165,7 @@ impl PortTrait for Mutex<Port> {
         let mut file = std::fs::OpenOptions::new()
             .write(true)
             .create(true)
+            .truncate(true)
             .open(path)?;
 
         file.write_all(content.as_bytes())?;
@@ -175,15 +174,11 @@ impl PortTrait for Mutex<Port> {
     }
 
     #[cfg(test)]
-    fn remove_matches_from_file_content(&self, _: &PathBuf, _: impl Pattern) -> Result<()> {
+    fn remove_matches_from_file_content(&self, _: &Path, _: impl Pattern) -> Result<()> {
         Ok(())
     }
     #[cfg(not(test))]
-    fn remove_matches_from_file_content(
-        &self,
-        path: &PathBuf,
-        pattern: impl Pattern,
-    ) -> Result<()> {
+    fn remove_matches_from_file_content(&self, path: &Path, pattern: impl Pattern) -> Result<()> {
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
@@ -201,11 +196,11 @@ impl PortTrait for Mutex<Port> {
     }
 
     #[cfg(test)]
-    fn append_to_file(&self, _: &PathBuf, _: &str) -> Result<()> {
+    fn append_to_file(&self, _: &Path, _: &str) -> Result<()> {
         Ok(())
     }
     #[cfg(not(test))]
-    fn append_to_file(&self, path: &PathBuf, content: &str) -> Result<()> {
+    fn append_to_file(&self, path: &Path, content: &str) -> Result<()> {
         use std::io::prelude::Write;
 
         if let Some(parent) = path.parent() {
@@ -215,15 +210,12 @@ impl PortTrait for Mutex<Port> {
         let original_content = std::fs::read_to_string(path)?;
         let ends_with_newline = original_content.ends_with('\n');
 
-        let mut file = std::fs::OpenOptions::new()
-            .write(true)
-            .append(true)
-            .open(path)?;
+        let mut file = std::fs::OpenOptions::new().append(true).open(path)?;
 
         if !ends_with_newline {
             file.write_all(b"\n")?;
         }
-        file.write(content.as_bytes())?;
+        file.write_all(content.as_bytes())?;
 
         Ok(())
     }

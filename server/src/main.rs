@@ -97,13 +97,11 @@ async fn generate_cli_prompt(user_message: String) -> CliPrompt {
         .await
         .expect("Failed to create chat completion");
 
-    let value = response.choices.get(0).unwrap();
+    let value = response.choices.first().unwrap();
     let value = &value.message.content;
     let value = value.clone().unwrap();
 
-    let prompt = CliPrompt { value };
-
-    prompt
+    CliPrompt { value }
 }
 
 #[tracing::instrument]

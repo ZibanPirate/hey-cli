@@ -14,6 +14,12 @@ bacon [task]
 
 # Code style
 
+Clippy is used for linting
+
+```sh
+cargo clippy
+```
+
 Rust files are formatted using
 
 ```sh
