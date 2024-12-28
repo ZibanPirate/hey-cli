@@ -27,7 +27,15 @@ if [ ! -d "$bin_dir" ]; then
 fi
 
 # download and move to bin
-curl --fail --location --progress-bar --output "$exe" "$hey_cli_uri"
+if ! curl --fail --location --progress-bar --output "$exe" "$hey_cli_uri"; then
+    echo "Error: Failed to download hey-cli."
+    echo "Please check your internet connection and ensure you can access:"
+    echo "$hey_cli_uri"
+    echo
+    echo "If the problem persists, please report this issue at:"
+    echo "https://github.com/ZibanPirate/hey-cli/issues"
+    exit 1
+fi
 
 # set permissions
 chmod +x "$exe"
