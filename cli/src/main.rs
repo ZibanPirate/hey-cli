@@ -33,8 +33,11 @@ async fn main() -> Result<()> {
 
     run(parse_args, &port).await?;
 
-    let std_out = port.to_stdout_format();
-    println!("{}", std_out.into());
+    let std_out: String = port.to_stdout_format().into();
+    let lines = std_out.lines().collect::<Vec<&str>>();
+    for line in lines {
+        println!("{}", line);
+    }
     Ok(())
 }
 
