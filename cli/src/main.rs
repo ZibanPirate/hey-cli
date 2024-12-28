@@ -66,8 +66,10 @@ async fn run(args: ParseArgs, port: &Mutex<Port>) -> Result<()> {
                 port.log(everything_before_prompt);
             }
             WhatToDoAfterParseArgsInternalAction::GetPrompt => {
-                let everything_after_prompt =
-                    input.split("hey-cli-prompt-start").last().unwrap().trim();
+                let everything_after_prompt = match input.contains("hey-cli-prompt-start") {
+                    true => input.split("hey-cli-prompt-start").last().unwrap().trim(),
+                    false => "",
+                };
                 port.log(everything_after_prompt);
             }
         },

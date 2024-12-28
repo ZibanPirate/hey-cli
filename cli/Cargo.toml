@@ -1,7 +1,7 @@
 [package]
 # TODO: optimize size
 name = "hey-cli-app"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 authors = ["ZibanPirate <zakman.dev@gmail.com>"]
 description = "Ask your CLI, next command will be auto-generated."
