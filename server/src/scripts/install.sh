@@ -41,11 +41,16 @@ fi
 chmod +x "$exe"
 
 # add to PATH if not already present
-shell_config_files="$HOME/.profile $HOME/.bashrc $HOME/.zshrc"
+shell_config_files="$HOME/.profile $HOME/.bashrc $HOME/.zshrc $HOME/.config/fish/config.fish"
 for config_file in $shell_config_files; do
     if [ -f "$config_file" ]; then
+        # echo \$HOME instead of the actual path
         if ! grep -q "$bin_dir" "$config_file"; then
-            echo "\nexport PATH=\"$bin_dir:\$PATH\"" >> "$config_file"
+            if [ "${config_file##*.}" = "fish" ]; then
+                echo "\nset -gx PATH \"$bin_dir\" \$PATH" >> "$config_file"
+            else
+                echo "\nexport PATH=\"$bin_dir:\$PATH\"" >> "$config_file"
+            fi
             echo "Added to PATH in $config_file."
         fi
     fi

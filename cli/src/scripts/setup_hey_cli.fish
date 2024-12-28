@@ -1,6 +1,7 @@
 function hey
     set hey_setup_version 0.1.0
     set name fish
+    # TODO: check if `hey` is in path, otherwise print install instructions
     set hey_cli (which hey)
 
     set hey_output ($hey_cli --shell-name $name --setup-version $hey_setup_version $argv)

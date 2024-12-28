@@ -65,10 +65,13 @@ jobs:
           tag_name: v${{ steps.get_version.outputs.VERSION }}
           body: |
             Install on macOS or Linux:
+
             ```sh
             curl -fsSL http://hey_cli.zak-man.com/install.sh | sh
             ```
+
             Install on Windows:
+
             ```powershell
             irm http://hey_cli.zak-man.com/install.ps1 | iex
             ```
