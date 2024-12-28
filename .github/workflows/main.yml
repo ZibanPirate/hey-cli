@@ -52,7 +52,7 @@ jobs:
       - name: Get version
         id: get_version
         run: |
-          echo "VERSION=$(grep '^version = ' server/Cargo.toml | cut -d'"' -f2)" >> $GITHUB_OUTPUT
+          echo "VERSION=$(grep '^version = ' cli/Cargo.toml | cut -d'"' -f2)" >> $GITHUB_OUTPUT
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
