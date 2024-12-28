@@ -105,8 +105,15 @@ mod end_to_end_tests {
 
     #[tokio::test]
     async fn version_flag() {
-        let port = Port::new_mutex();
-        let res = run(ParseArgs::default(), &port).await;
+        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let res = run(
+            ParseArgs {
+                version: true,
+                ..ParseArgs::default()
+            },
+            &port,
+        )
+        .await;
         assert!(res.is_ok());
         let stdout = port.to_stdout_format();
         assert_eq!(stdout.into(), format!("hey-cli {VERSION}"));
@@ -114,7 +121,7 @@ mod end_to_end_tests {
 
     #[tokio::test]
     async fn version_flag_shell_name() {
-        let port = Port::new_mutex();
+        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
         let res = run(
             ParseArgs {
                 version: true,
@@ -131,7 +138,7 @@ mod end_to_end_tests {
 
     #[tokio::test]
     async fn version_flag_setup_version() {
-        let port = Port::new_mutex();
+        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
         let res = run(
             ParseArgs {
                 version: true,
@@ -148,7 +155,7 @@ mod end_to_end_tests {
 
     #[tokio::test]
     async fn version_flag_shell_name_setup_version() {
-        let port = Port::new_mutex();
+        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
         let res = run(
             ParseArgs {
                 version: true,
@@ -169,7 +176,7 @@ mod end_to_end_tests {
 
     #[tokio::test]
     async fn ask_no_shell_no_supported_shell_available() {
-        let port = Port::new_mutex();
+        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
         let res = run(
             ParseArgs {
                 ask: vec![
