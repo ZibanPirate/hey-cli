@@ -34,6 +34,7 @@ async fn main() {
     ts.init();
 
     let app = Router::new()
+        .route("/", get(root))
         .route("/cli-prompt", get(get_cli_prompt))
         .route("/health", get(health))
         .route("/install.sh", get(get_install_script));
@@ -114,4 +115,11 @@ async fn health() -> &'static str {
 async fn get_install_script() -> &'static str {
     let content = include_str!("scripts/install.sh");
     content
+}
+
+const HTML: &str = include_str!("./home.html");
+
+#[tracing::instrument]
+async fn root() -> axum::response::Html<&'static str> {
+    axum::response::Html(HTML)
 }

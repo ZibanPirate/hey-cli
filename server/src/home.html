@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hey CLI - Installation</title>
+        <style>
+            :root {
+                color-scheme: light dark;
+            }
+
+            body {
+                max-width: 800px;
+                margin: 40px auto;
+                padding: 0 20px;
+                font-family: system-ui, -apple-system, sans-serif;
+                line-height: 1.6;
+            }
+
+            pre {
+                padding: 15px;
+                border-radius: 5px;
+                overflow-x: auto;
+            }
+
+            @media (prefers-color-scheme: light) {
+                body {
+                    color: #111;
+                    background: #fff;
+                }
+                pre {
+                    background: #f4f4f4;
+                    border: 1px solid #ddd;
+                }
+            }
+
+            @media (prefers-color-scheme: dark) {
+                body {
+                    color: #eee;
+                    background: #111;
+                }
+                pre {
+                    background: #222;
+                    border: 1px solid #333;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Hey CLI</h1>
+        <p>
+            Hey CLI is your AI-powered command line assistant. Just ask what you
+            want to do, and it will give you the right command.
+        </p>
+
+        <h2>Installation</h2>
+
+        <h3>Unix-like Systems (Linux, macOS)</h3>
+        <p>To install Hey CLI, run:</p>
+        <pre>curl -fsSL https://hey-cli.fly.dev/install.sh | bash</pre>
+
+        <h3>Windows</h3>
+        <p>Install using PowerShell:</p>
+        <pre>irm https://hey-cli.fly.dev/install.ps1 | iex</pre>
+
+        <h2>Usage</h2>
+        <p>Simply type <code>hey</code> followed by your question:</p>
+        <pre>hey how do I check disk space</pre>
+        <p>And you will get the command auto-populated in your terminal.</p>
+        <pre>df -h</pre>
+    </body>
+</html>
