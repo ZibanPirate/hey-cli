@@ -4,6 +4,8 @@ Ask your CLI, next command will be auto-generated.
 
 ## Install
 
+> **Notice:** For now, this only works for Fish shell on macOS, see #1 for other shell/OS combos
+
 **With Shell:**
 
 ```sh
