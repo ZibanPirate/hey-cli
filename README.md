@@ -4,15 +4,16 @@ Ask your CLI, next command will be auto-generated.
 
 ## Install
 
-> **Notice:** For now, this only works for Fish shell on macOS, see https://github.com/ZibanPirate/hey-cli/issues/1 for other shell/OS combos
+> [!WARNING]
+> For now, this only works for Fish shell on macOS, see https://github.com/ZibanPirate/hey-cli/issues/1 for other shell/OS combos
 
-**With Shell:**
+**Unix-like Systems (Linux, macOS):**
 
 ```sh
 curl -fsSL http://hey_cli.zak-man.com/install.sh | sh
 ```
 
-**With PowerShell:**
+**Windows:**
 
 ```powershell
 irm http://hey_cli.zak-man.com/install.ps1 | iex
