@@ -2,6 +2,7 @@
 
 use crate::{
     check_setup::CheckSetup,
+    reset::Reset,
     utils::{PortTrait, Shell, ShellName, State},
     what_to_do::{WhatToDoAfterParseArgs, WhatToDoAfterParseArgsInternalAction},
 };
@@ -16,6 +17,10 @@ pub struct ParseArgs {
     /// Print version information
     #[arg(short, long)]
     pub version: bool,
+
+    /// Reset the setup
+    #[arg(short, long)]
+    pub reset: bool,
 
     /// Internal: Get the stdout for setup script
     #[arg(long)]
@@ -47,6 +52,10 @@ impl State<WhatToDoAfterParseArgs> for ParseArgs {
             }),
             _ => None,
         };
+
+        if self.reset {
+            return Ok(WhatToDoAfterParseArgs::Reset(Reset));
+        }
 
         if self.version {
             return Ok(WhatToDoAfterParseArgs::PrintVersion {

@@ -2,7 +2,7 @@ use anyhow::Result;
 use hey_cli_common::{GetCliPromptRequestQuery, GetCliPromptResponse};
 use nest_struct::nest_struct;
 use std::{collections::HashMap, path::Path, str::pattern::Pattern, sync::Mutex};
-use strum_macros::{Display, EnumString};
+use strum_macros::{Display, EnumIter, EnumString};
 
 pub trait State<N> {
     async fn next(self, port: &impl PortTrait) -> Result<N>;
@@ -12,7 +12,7 @@ pub trait State<N> {
 pub struct Shell {
     pub setup_version: String,
     pub name: nest! {
-        #[derive(EnumString, Display)]
+        #[derive(EnumString, EnumIter, Display, Debug)]
         #[strum(serialize_all = "snake_case")]
         pub enum ShellName {
             Fish,
@@ -38,40 +38,56 @@ impl Shell {
                     }
                 })
                 .unwrap_or_else(|| panic!("Could not find setup version for {:}", self.name)),
+            ShellName::Zsh => self
+                .name
+                .setup_script_content()
+                .lines()
+                .find_map(|line| {
+                    if line.contains("local hey_setup_version=") {
+                        Some(line.split('"').nth(1).unwrap())
+                    } else {
+                        None
+                    }
+                })
+                .unwrap_or_else(|| panic!("Could not find setup version for {:}", self.name)),
             _ => todo!("implement expected_setup_version for {:}", self.name),
         }
     }
 }
 
 impl ShellName {
-    pub fn detect(port: &impl PortTrait) -> Result<Self> {
-        if port.get_env_var("FISH_VERSION").is_some()
-            || port
-                .get_env_var("SHELL")
-                .unwrap_or_default()
-                .ends_with("/fish")
-        {
-            return Ok(Self::Fish);
-        }
+    /// Detects all shells based on the environment variables
+    /// and falls back to checking shell binary path.
+    /// Returns an error if no supported shell is detected.
+    pub fn detect_all(port: &impl PortTrait) -> Result<Vec<Self>> {
+        let mut shells = Vec::new();
 
-        if port.get_env_var("BASH_VERSION").is_some() {
-            return Ok(Self::Bash);
-        }
+        let shell_path = port.get_env_var("SHELL").unwrap_or_default();
 
-        if port.get_env_var("ZSH_VERSION").is_some() {
-            return Ok(Self::Zsh);
+        if port.get_env_var("FISH_VERSION").is_some() || shell_path.ends_with("/fish") {
+            shells.push(Self::Fish);
         }
-
+        if port.get_env_var("BASH_VERSION").is_some() || shell_path.ends_with("/bash") {
+            shells.push(Self::Bash);
+        }
+        if port.get_env_var("ZSH_VERSION").is_some() || shell_path.ends_with("/zsh") {
+            shells.push(Self::Zsh);
+        }
         if port.get_env_var("PSModulePath").is_some() {
-            return Ok(Self::PowerShell);
+            shells.push(Self::PowerShell);
         }
 
-        Err(anyhow::anyhow!("No supported shell detected"))
+        if shells.is_empty() {
+            return Err(anyhow::anyhow!("No supported shell detected"));
+        }
+
+        Ok(shells)
     }
 
     pub fn setup_script_content(&self) -> &str {
         match self {
             ShellName::Fish => include_str!("../scripts/setup_hey_cli.fish"),
+            ShellName::Zsh => include_str!("../scripts/setup_hey_cli.zsh"),
             _ => todo!("implement setup_script_content for {:}", self),
         }
     }

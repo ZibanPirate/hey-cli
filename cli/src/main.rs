@@ -7,6 +7,7 @@ mod check_setup;
 mod generate_context;
 mod parse_args;
 mod prompt;
+mod reset;
 mod setup_script;
 mod utils;
 mod what_to_do;
@@ -44,6 +45,9 @@ async fn main() -> Result<()> {
 async fn run(args: ParseArgs, port: &Mutex<Port>) -> Result<()> {
     let what_to_do = args.next(port).await?;
     match what_to_do {
+        WhatToDoAfterParseArgs::Reset(reset) => {
+            reset.next(port).await?;
+        }
         WhatToDoAfterParseArgs::PrintVersion {
             cli_version,
             setup_version,
@@ -198,8 +202,11 @@ mod end_to_end_tests {
     }
 
     #[tokio::test]
-    async fn ask_no_shell_inside_fish_shell() {
-        let port = Port::new_mutex_with_env_vars(vec![("FISH_VERSION", "1.2.3")]);
+    async fn ask_no_shell_inside_fish_and_zsh_shells() {
+        let port = Port::new_mutex_with_env_vars(vec![
+            ("FISH_VERSION", "1.2.3"),
+            ("ZSH_VERSION", "1.2.3"),
+        ]);
         let res = run(
             ParseArgs {
                 ask: vec![
@@ -217,7 +224,11 @@ mod end_to_end_tests {
         let stdout = port.to_stdout_format();
         assert_eq!(
             stdout.into(),
-            "Setup script not installed\nInstalling setup script for shell: fish\nSetup script installed successfully\nPlease open new terminal session"
+            r#"Setup script not installed
+Installing setup script for shell: fish
+Installing setup script for shell: zsh
+Setup script installed successfully
+Please open new terminal session"#
         );
     }
 
@@ -251,7 +262,6 @@ mod end_to_end_tests {
     async fn ask_no_shell_inside_not_yet_supported_shells() {
         let not_yet_supported_shells = vec![
             ("bash", "BASH_VERSION", "1.2.3"),
-            ("zsh", "ZSH_VERSION", "1.2.3"),
             ("power_shell", "PSModulePath", "/tmp/.../Modules:/usr/..."),
         ];
 
