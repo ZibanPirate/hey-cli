@@ -5,7 +5,7 @@ Ask your CLI, next command will be auto-generated.
 ## Install
 
 > [!WARNING]
-> For now, this only works for Fish shell on macOS, see https://github.com/ZibanPirate/hey-cli/issues/1 for other shell/OS combos
+> For now, this only works for Fish and Zsh shells on macOS, see https://github.com/ZibanPirate/hey-cli/issues/1 for other shell/OS combos
 
 **Unix-like Systems (Linux, macOS):**
 
