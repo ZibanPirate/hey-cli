@@ -40,7 +40,7 @@ top -o cpu -s 5
 - [x] supported shells
     - [x] fish
     - [ ] bash
-    - [ ] zsh
+    - [x] zsh
     - [ ] powershell
 
 ## Contributing
