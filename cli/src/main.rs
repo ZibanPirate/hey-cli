@@ -7,6 +7,7 @@ mod check_setup;
 mod generate_context;
 mod parse_args;
 mod prompt;
+mod reset;
 mod setup_script;
 mod utils;
 mod what_to_do;
@@ -44,6 +45,9 @@ async fn main() -> Result<()> {
 async fn run(args: ParseArgs, port: &Mutex<Port>) -> Result<()> {
     let what_to_do = args.next(port).await?;
     match what_to_do {
+        WhatToDoAfterParseArgs::Reset(reset) => {
+            reset.next(port).await?;
+        }
         WhatToDoAfterParseArgs::PrintVersion {
             cli_version,
             setup_version,

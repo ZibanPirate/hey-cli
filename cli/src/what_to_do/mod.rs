@@ -1,9 +1,11 @@
+use crate::{
+    check_ask::CheckAsk, check_setup::CheckSetup, reset::Reset, setup_script::SetupScript,
+};
 use nest_struct::nest_struct;
-
-use crate::{check_ask::CheckAsk, check_setup::CheckSetup, setup_script::SetupScript};
 
 #[nest_struct]
 pub enum WhatToDoAfterParseArgs {
+    Reset(Reset),
     PrintVersion {
         cli_version: String,
         setup_version: Option<String>,

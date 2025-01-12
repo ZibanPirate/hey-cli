@@ -2,7 +2,7 @@ use anyhow::Result;
 use hey_cli_common::{GetCliPromptRequestQuery, GetCliPromptResponse};
 use nest_struct::nest_struct;
 use std::{collections::HashMap, path::Path, str::pattern::Pattern, sync::Mutex};
-use strum_macros::{Display, EnumString};
+use strum_macros::{Display, EnumIter, EnumString};
 
 pub trait State<N> {
     async fn next(self, port: &impl PortTrait) -> Result<N>;
@@ -12,7 +12,7 @@ pub trait State<N> {
 pub struct Shell {
     pub setup_version: String,
     pub name: nest! {
-        #[derive(EnumString, Display, Debug)]
+        #[derive(EnumString, EnumIter, Display, Debug)]
         #[strum(serialize_all = "snake_case")]
         pub enum ShellName {
             Fish,
