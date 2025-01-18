@@ -1,6 +1,8 @@
 [workspace]
-resolver = "2"
+resolver = "3"
 members = ["cli", "common", "server"]
+rust-version = "1.86.0-nightly"
+
 # TODO: unpublish cli and common
 
 [profile.release]
