@@ -1,7 +1,7 @@
 use anyhow::Result;
 use hey_cli_common::{GetCliPromptRequestQuery, GetCliPromptResponse};
 use nest_struct::nest_struct;
-use std::{collections::HashMap, path::Path, str::pattern::Pattern, sync::Mutex};
+use std::{path::Path, str::pattern::Pattern, sync::Mutex};
 use strum_macros::{Display, EnumIter, EnumString};
 
 pub trait State<N> {
@@ -56,34 +56,6 @@ impl Shell {
 }
 
 impl ShellName {
-    /// Detects all shells based on the environment variables
-    /// and falls back to checking shell binary path.
-    /// Returns an error if no supported shell is detected.
-    pub fn detect_all(port: &impl PortTrait) -> Result<Vec<Self>> {
-        let mut shells = Vec::new();
-
-        let shell_path = port.get_env_var("SHELL").unwrap_or_default();
-
-        if port.get_env_var("FISH_VERSION").is_some() || shell_path.ends_with("/fish") {
-            shells.push(Self::Fish);
-        }
-        if port.get_env_var("BASH_VERSION").is_some() || shell_path.ends_with("/bash") {
-            shells.push(Self::Bash);
-        }
-        if port.get_env_var("ZSH_VERSION").is_some() || shell_path.ends_with("/zsh") {
-            shells.push(Self::Zsh);
-        }
-        if port.get_env_var("PSModulePath").is_some() {
-            shells.push(Self::PowerShell);
-        }
-
-        if shells.is_empty() {
-            return Err(anyhow::anyhow!("No supported shell detected"));
-        }
-
-        Ok(shells)
-    }
-
     pub fn setup_script_content(&self) -> &str {
         match self {
             ShellName::Fish => include_str!("../scripts/setup_hey_cli.fish"),
@@ -97,27 +69,13 @@ impl ShellName {
 pub struct Port {
     pub logs: Vec<String>,
     pub final_prompt: Option<String>,
-    pub env_vars: HashMap<String, String>,
 }
 
 impl Port {
     pub fn new_mutex() -> Mutex<Self> {
-        let env_vars = std::env::vars().collect();
-        Self::new_mutex_with_env_vars(env_vars)
-    }
-
-    pub fn new_mutex_with_env_vars(
-        env_vars: Vec<(impl Into<String>, impl Into<String>)>,
-    ) -> Mutex<Self> {
-        let env_vars = env_vars
-            .into_iter()
-            .map(|(k, v)| (k.into(), v.into()))
-            .collect();
-
         Mutex::new(Self {
             logs: vec![],
             final_prompt: None,
-            env_vars,
         })
     }
 }
@@ -126,7 +84,6 @@ pub trait PortTrait {
     fn log(&self, log: impl Into<String>);
     fn set_final_prompt(&self, prompt: String);
     fn to_stdout_format(&self) -> impl Into<String>;
-    fn get_env_var(&self, key: &str) -> Option<String>;
     fn overwrite_file(&self, path: &Path, content: &str) -> Result<()>;
     fn remove_matches_from_file_content(&self, path: &Path, pattern: impl Pattern) -> Result<()>;
     fn append_to_file(&self, path: &Path, content: &str) -> Result<()>;
@@ -159,11 +116,6 @@ impl PortTrait for Mutex<Port> {
         };
 
         format!("{logs}{final_prompt}")
-    }
-
-    fn get_env_var(&self, key: &str) -> Option<String> {
-        let port = self.lock().unwrap();
-        port.env_vars.get(key).cloned()
     }
 
     #[cfg(test)]

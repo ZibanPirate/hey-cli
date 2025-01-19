@@ -1,16 +1,12 @@
 use crate::utils::{PortTrait, ShellName, State};
 use anyhow::Result;
+use strum::IntoEnumIterator;
 
-pub struct SetupScript(pub Option<ShellName>);
+pub struct SetupScript;
 
 impl State<()> for SetupScript {
     async fn next(self, port: &impl PortTrait) -> Result<()> {
-        let shell_names = match self.0 {
-            Some(shell_name) => vec![shell_name],
-            None => ShellName::detect_all(port)?,
-        };
-
-        for shell_name in shell_names {
+        for shell_name in ShellName::iter() {
             port.log(format!("Installing setup script for shell: {shell_name}"));
             match shell_name {
                 ShellName::Fish => {
