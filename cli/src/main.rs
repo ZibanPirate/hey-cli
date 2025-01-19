@@ -182,7 +182,7 @@ mod end_to_end_tests {
     }
 
     #[tokio::test]
-    async fn ask_no_shell_no_supported_shell_available() {
+    async fn ask_no_shell_no_supported_shell_listed() {
         let port = Port::new_mutex();
         let res = run(
             ParseArgs {
@@ -196,9 +196,20 @@ mod end_to_end_tests {
             &port,
         )
         .await;
-        assert!(res.is_err());
-        let error = res.unwrap_err();
-        assert_eq!(error.to_string(), "No supported shell detected");
+        assert!(res.is_ok());
+        let stdout = port.to_stdout_format();
+        assert_eq!(
+            stdout.into(),
+            r#"Setup script not installed
+Installing setup script for shell: fish
+Installing setup script for shell: bash
+bash shell is not yet supported
+Installing setup script for shell: zsh
+Installing setup script for shell: power_shell
+power_shell shell is not yet supported
+Setup script installed successfully
+Please open new terminal session"#,
+        );
     }
 
     #[tokio::test]
@@ -223,7 +234,11 @@ mod end_to_end_tests {
             stdout.into(),
             r#"Setup script not installed
 Installing setup script for shell: fish
+Installing setup script for shell: bash
+bash shell is not yet supported
 Installing setup script for shell: zsh
+Installing setup script for shell: power_shell
+power_shell shell is not yet supported
 Setup script installed successfully
 Please open new terminal session"#
         );
@@ -251,36 +266,16 @@ Please open new terminal session"#
         let stdout = port.to_stdout_format();
         assert_eq!(
             stdout.into(),
-            "Setup script outdated\nInstalling setup script for shell: fish\nSetup script installed successfully\nPlease open new terminal session"
+            r#"Setup script outdated
+Installing setup script for shell: fish
+Installing setup script for shell: bash
+bash shell is not yet supported
+Installing setup script for shell: zsh
+Installing setup script for shell: power_shell
+power_shell shell is not yet supported
+Setup script installed successfully
+Please open new terminal session"#
         );
-    }
-
-    #[tokio::test]
-    async fn ask_no_shell_inside_not_yet_supported_shells() {
-        let not_yet_supported_shells = vec!["bash", "power_shell"];
-
-        for shell_name in not_yet_supported_shells {
-            let port = Port::new_mutex();
-            let res = run(
-                ParseArgs {
-                    ask: vec![
-                        "print".to_string(),
-                        "working".to_string(),
-                        "directory".to_string(),
-                    ],
-                    ..Default::default()
-                },
-                &port,
-            )
-            .await;
-
-            assert!(res.is_err());
-            let error = res.unwrap_err();
-            assert_eq!(
-                error.to_string(),
-                format!("{shell_name} shell is not yet supported")
-            );
-        }
     }
 
     #[tokio::test]

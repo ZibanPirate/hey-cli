@@ -44,8 +44,7 @@ impl State<()> for SetupScript {
                     }
                 }
                 _ => {
-                    // TODO: Implement setup for other shells
-                    return Err(anyhow::anyhow!("{shell_name} shell is not yet supported"));
+                    port.log(format!("{shell_name} shell is not yet supported"));
                 }
             };
         }
