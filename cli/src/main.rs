@@ -112,7 +112,7 @@ mod end_to_end_tests {
 
     #[tokio::test]
     async fn version_flag() {
-        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 version: true,
@@ -128,7 +128,7 @@ mod end_to_end_tests {
 
     #[tokio::test]
     async fn version_flag_shell_name() {
-        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 version: true,
@@ -145,7 +145,7 @@ mod end_to_end_tests {
 
     #[tokio::test]
     async fn version_flag_setup_version() {
-        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 version: true,
@@ -162,7 +162,7 @@ mod end_to_end_tests {
 
     #[tokio::test]
     async fn version_flag_shell_name_setup_version() {
-        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 version: true,
@@ -182,8 +182,8 @@ mod end_to_end_tests {
     }
 
     #[tokio::test]
-    async fn ask_no_shell_no_supported_shell_available() {
-        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+    async fn ask_no_shell_no_supported_shell_listed() {
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 ask: vec![
@@ -196,17 +196,25 @@ mod end_to_end_tests {
             &port,
         )
         .await;
-        assert!(res.is_err());
-        let error = res.unwrap_err();
-        assert_eq!(error.to_string(), "No supported shell detected");
+        assert!(res.is_ok());
+        let stdout = port.to_stdout_format();
+        assert_eq!(
+            stdout.into(),
+            r#"Setup script not installed
+Installing setup script for shell: fish
+Installing setup script for shell: bash
+bash shell is not yet supported
+Installing setup script for shell: zsh
+Installing setup script for shell: power_shell
+power_shell shell is not yet supported
+Setup script installed successfully
+Please open new terminal session"#,
+        );
     }
 
     #[tokio::test]
     async fn ask_no_shell_inside_fish_and_zsh_shells() {
-        let port = Port::new_mutex_with_env_vars(vec![
-            ("FISH_VERSION", "1.2.3"),
-            ("ZSH_VERSION", "1.2.3"),
-        ]);
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 ask: vec![
@@ -226,7 +234,11 @@ mod end_to_end_tests {
             stdout.into(),
             r#"Setup script not installed
 Installing setup script for shell: fish
+Installing setup script for shell: bash
+bash shell is not yet supported
 Installing setup script for shell: zsh
+Installing setup script for shell: power_shell
+power_shell shell is not yet supported
 Setup script installed successfully
 Please open new terminal session"#
         );
@@ -234,7 +246,7 @@ Please open new terminal session"#
 
     #[tokio::test]
     async fn ask_with_shell_with_different_setup_version() {
-        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 shell_name: Some("fish".to_string()),
@@ -254,39 +266,16 @@ Please open new terminal session"#
         let stdout = port.to_stdout_format();
         assert_eq!(
             stdout.into(),
-            "Setup script outdated\nInstalling setup script for shell: fish\nSetup script installed successfully\nPlease open new terminal session"
+            r#"Setup script outdated
+Installing setup script for shell: fish
+Installing setup script for shell: bash
+bash shell is not yet supported
+Installing setup script for shell: zsh
+Installing setup script for shell: power_shell
+power_shell shell is not yet supported
+Setup script installed successfully
+Please open new terminal session"#
         );
-    }
-
-    #[tokio::test]
-    async fn ask_no_shell_inside_not_yet_supported_shells() {
-        let not_yet_supported_shells = vec![
-            ("bash", "BASH_VERSION", "1.2.3"),
-            ("power_shell", "PSModulePath", "/tmp/.../Modules:/usr/..."),
-        ];
-
-        for (shell_name, env_var, env_value) in not_yet_supported_shells {
-            let port = Port::new_mutex_with_env_vars(vec![(env_var, env_value)]);
-            let res = run(
-                ParseArgs {
-                    ask: vec![
-                        "print".to_string(),
-                        "working".to_string(),
-                        "directory".to_string(),
-                    ],
-                    ..Default::default()
-                },
-                &port,
-            )
-            .await;
-
-            assert!(res.is_err());
-            let error = res.unwrap_err();
-            assert_eq!(
-                error.to_string(),
-                format!("{shell_name} shell is not yet supported")
-            );
-        }
     }
 
     #[tokio::test]
@@ -303,7 +292,7 @@ Please open new terminal session"#
             ),
         ];
         for (ask, error_message) in invalid_asks {
-            let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+            let port = Port::new_mutex();
             let res = run(
                 ParseArgs {
                     shell_name: Some("fish".to_string()),
@@ -327,7 +316,7 @@ Please open new terminal session"#
             .with_max_level(tracing::Level::TRACE)
             .init();
 
-        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 shell_name: Some("fish".to_string()),

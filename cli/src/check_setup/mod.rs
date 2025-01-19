@@ -15,15 +15,13 @@ impl State<WhatToDoAfterCheckSetup> for CheckSetup {
     async fn next(self, port: &impl PortTrait) -> Result<WhatToDoAfterCheckSetup> {
         if self.shell.is_none() {
             port.log("Setup script not installed");
-            return Ok(WhatToDoAfterCheckSetup::SetupScript(SetupScript(None)));
+            return Ok(WhatToDoAfterCheckSetup::SetupScript(SetupScript));
         }
 
         let shell = self.shell.unwrap();
         if shell.setup_version != shell.expected_setup_version() {
             port.log("Setup script outdated");
-            return Ok(WhatToDoAfterCheckSetup::SetupScript(SetupScript(Some(
-                shell.name,
-            ))));
+            return Ok(WhatToDoAfterCheckSetup::SetupScript(SetupScript));
         }
 
         Ok(WhatToDoAfterCheckSetup::CheckAsk(CheckAsk {

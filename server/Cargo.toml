@@ -15,6 +15,6 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 hey-cli-common = { workspace = true }
 dotenv = "0.15"
-async-openai = "0.26"
-sentry = "0.35.0"
-sentry-tracing = "0.35.0"
+async-openai = "0.27"
+sentry = "0.36"
+sentry-tracing = "0.36"
