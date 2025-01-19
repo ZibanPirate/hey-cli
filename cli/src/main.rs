@@ -112,7 +112,7 @@ mod end_to_end_tests {
 
     #[tokio::test]
     async fn version_flag() {
-        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 version: true,
@@ -128,7 +128,7 @@ mod end_to_end_tests {
 
     #[tokio::test]
     async fn version_flag_shell_name() {
-        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 version: true,
@@ -145,7 +145,7 @@ mod end_to_end_tests {
 
     #[tokio::test]
     async fn version_flag_setup_version() {
-        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 version: true,
@@ -162,7 +162,7 @@ mod end_to_end_tests {
 
     #[tokio::test]
     async fn version_flag_shell_name_setup_version() {
-        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 version: true,
@@ -183,7 +183,7 @@ mod end_to_end_tests {
 
     #[tokio::test]
     async fn ask_no_shell_no_supported_shell_available() {
-        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 ask: vec![
@@ -203,10 +203,7 @@ mod end_to_end_tests {
 
     #[tokio::test]
     async fn ask_no_shell_inside_fish_and_zsh_shells() {
-        let port = Port::new_mutex_with_env_vars(vec![
-            ("FISH_VERSION", "1.2.3"),
-            ("ZSH_VERSION", "1.2.3"),
-        ]);
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 ask: vec![
@@ -234,7 +231,7 @@ Please open new terminal session"#
 
     #[tokio::test]
     async fn ask_with_shell_with_different_setup_version() {
-        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 shell_name: Some("fish".to_string()),
@@ -260,13 +257,10 @@ Please open new terminal session"#
 
     #[tokio::test]
     async fn ask_no_shell_inside_not_yet_supported_shells() {
-        let not_yet_supported_shells = vec![
-            ("bash", "BASH_VERSION", "1.2.3"),
-            ("power_shell", "PSModulePath", "/tmp/.../Modules:/usr/..."),
-        ];
+        let not_yet_supported_shells = vec!["bash", "power_shell"];
 
-        for (shell_name, env_var, env_value) in not_yet_supported_shells {
-            let port = Port::new_mutex_with_env_vars(vec![(env_var, env_value)]);
+        for shell_name in not_yet_supported_shells {
+            let port = Port::new_mutex();
             let res = run(
                 ParseArgs {
                     ask: vec![
@@ -303,7 +297,7 @@ Please open new terminal session"#
             ),
         ];
         for (ask, error_message) in invalid_asks {
-            let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+            let port = Port::new_mutex();
             let res = run(
                 ParseArgs {
                     shell_name: Some("fish".to_string()),
@@ -327,7 +321,7 @@ Please open new terminal session"#
             .with_max_level(tracing::Level::TRACE)
             .init();
 
-        let port = Port::new_mutex_with_env_vars(vec![("", "")]);
+        let port = Port::new_mutex();
         let res = run(
             ParseArgs {
                 shell_name: Some("fish".to_string()),
