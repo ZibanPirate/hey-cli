@@ -6,9 +6,13 @@ use async_openai::{
     },
     Client,
 };
-use axum::{extract::Query, routing::get, Json, Router};
+use axum::{
+    routing::{get, post},
+    Json, Router,
+};
 use dotenv::dotenv;
-use hey_cli_common::{CliPrompt, GetCliPromptRequestQuery, GetCliPromptResponse};
+use hey_cli_common::{CliPrompt, GetCliPromptRequestBody, GetCliPromptResponse};
+use std::collections::HashMap;
 use tracing_subscriber::prelude::*;
 
 #[tokio::main]
@@ -35,7 +39,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/", get(root))
-        .route("/cli-prompt", get(get_cli_prompt))
+        .route("/cli-prompt", post(post_cli_prompt))
         .route("/health", get(health))
         .route("/install.sh", get(get_install_script));
 
@@ -50,16 +54,18 @@ async fn main() {
 }
 
 #[tracing::instrument]
-async fn get_cli_prompt(
-    Query(query): Query<GetCliPromptRequestQuery>,
-) -> Json<GetCliPromptResponse> {
-    let prompt = generate_cli_prompt(query.q).await;
+async fn post_cli_prompt(query: Json<GetCliPromptRequestBody>) -> Json<GetCliPromptResponse> {
+    let prompt = generate_cli_prompt(&query.ask, &query.context).await;
 
     Json(GetCliPromptResponse { prompt })
 }
 
+// TODO: add anyhow error handling
 #[tracing::instrument(ret)]
-async fn generate_cli_prompt(user_message: String) -> CliPrompt {
+async fn generate_cli_prompt(
+    user_message: &String,
+    context: &HashMap<String, HashMap<String, String>>,
+) -> CliPrompt {
     let openai_key = std::env::var("OPENAI_KEY").unwrap();
     let openai_organization_id = std::env::var("OPENAI_ORGANIZATION_ID").unwrap();
 
@@ -70,25 +76,33 @@ async fn generate_cli_prompt(user_message: String) -> CliPrompt {
 
     let client = Client::with_config(config);
 
+    let messages = [
+        ChatCompletionRequestSystemMessage::from(
+            "The user will give you some context in form of JSON, then right after, the user will ask a question, and your job is to model the answer in a command line interface.",
+        )
+        .into(),
+        ChatCompletionRequestSystemMessage::from(
+            "Your response must be a one-liner valid command that can be run in a shell. no extra, no code blocks.",
+        )
+        .into(),
+        ChatCompletionRequestSystemMessage::from(
+            "In the case where you don't have an answer, you can respond with `echo \"[your excuse]\"`",
+        )
+        .into(),
+        ChatCompletionRequestUserMessage::from(format!(r#"user context:
+```json
+{}
+```
+"#, serde_json::to_string(context).expect("Failed to serialize context"))).into(),
+        ChatCompletionRequestUserMessage::from(format!(r#"user ask:
+{}
+"#, user_message.clone())).into(),
+    ];
+
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u32)
         .model("gpt-4o-2024-08-06")
-        .messages([
-            ChatCompletionRequestSystemMessage::from(
-                "The user will ask a question, and your job is to model the answer in a command line interface.",
-            )
-            .into(),
-            ChatCompletionRequestSystemMessage::from(
-                "Your response must be a one-liner valid command that can be run in a shell. no extra, no code blocks.",
-            )
-            .into(),
-            ChatCompletionRequestSystemMessage::from(
-                "In the case where you don't have an answer, you can respond with `echo \"[your excuse]\"`",
-            )
-            .into(),
-
-            ChatCompletionRequestUserMessage::from(user_message).into(),
-        ])
+        .messages(messages)
         .build()
         .expect("Failed to build request");
 

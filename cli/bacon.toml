@@ -16,9 +16,28 @@ command = [
     "--color",
     "always",
     "--",
-    "--shell",
+    "--shell-name",
     "fish",
+    "--setup-version",
+    "0.1.0",
     "reset changes in current branch",
+]
+background = false
+need_stdout = true
+allow_warnings = true
+
+[jobs.hey-2]
+command = [
+    "cargo",
+    "run",
+    "--color",
+    "always",
+    "--",
+    "--shell-name",
+    "fish",
+    "--setup-version",
+    "0.1.0",
+    "show free space in percentage",
 ]
 background = false
 need_stdout = true
