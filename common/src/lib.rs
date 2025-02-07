@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CliPrompt {
@@ -10,7 +11,8 @@ pub struct GetCliPromptResponse {
     pub prompt: CliPrompt,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct GetCliPromptRequestQuery {
-    pub q: String,
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetCliPromptRequestBody {
+    pub ask: String,
+    pub context: HashMap<String, HashMap<String, String>>,
 }

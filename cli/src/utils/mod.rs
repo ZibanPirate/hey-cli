@@ -1,5 +1,5 @@
 use anyhow::Result;
-use hey_cli_common::{GetCliPromptRequestQuery, GetCliPromptResponse};
+use hey_cli_common::{GetCliPromptRequestBody, GetCliPromptResponse};
 use nest_struct::nest_struct;
 use std::{path::Path, str::pattern::Pattern, sync::Mutex};
 use strum_macros::{Display, EnumIter, EnumString};
@@ -89,7 +89,7 @@ pub trait PortTrait {
     fn append_to_file(&self, path: &Path, content: &str) -> Result<()>;
     async fn ask_server_for_prompt(
         &self,
-        query: GetCliPromptRequestQuery,
+        query: GetCliPromptRequestBody,
     ) -> Result<GetCliPromptResponse>;
 }
 
@@ -191,23 +191,21 @@ impl PortTrait for Mutex<Port> {
     #[cfg(test)]
     async fn ask_server_for_prompt(
         &self,
-        query: GetCliPromptRequestQuery,
+        query: GetCliPromptRequestBody,
     ) -> Result<GetCliPromptResponse> {
         use hey_cli_common::CliPrompt;
 
         Ok(GetCliPromptResponse {
             prompt: CliPrompt {
-                value: format!("echo \"{}\"", query.q),
+                value: format!("echo \"{}\"", query.ask),
             },
         })
     }
     #[cfg(not(test))]
     async fn ask_server_for_prompt(
         &self,
-        query: GetCliPromptRequestQuery,
+        query: GetCliPromptRequestBody,
     ) -> Result<GetCliPromptResponse> {
-        use urlencoding::encode;
-
         #[cfg(not(debug_assertions))]
         let server_url = "http://hey_cli.zak-man.com";
         #[cfg(debug_assertions)]
@@ -232,10 +230,15 @@ impl PortTrait for Mutex<Port> {
             }
         }
 
-        let ask = encode(&query.q);
-        let url = format!("{server_url}/cli-prompt?q={ask}");
-        let resp = reqwest::get(url).await?;
-        let resp = resp.json::<GetCliPromptResponse>().await?;
+        let url = format!("{server_url}/cli-prompt");
+        let client = reqwest::Client::new();
+        let resp = client
+            .post(url)
+            .json(&query)
+            .send()
+            .await?
+            .json::<GetCliPromptResponse>()
+            .await?;
 
         Ok(resp)
     }
