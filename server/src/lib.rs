@@ -16,8 +16,6 @@ struct AppState {
     config: nest! {
         openai_key: String,
         openai_organization_id: String,
-        // todo: setup sentry
-        sentry_dsn: String,
     },
 }
 
@@ -38,10 +36,6 @@ async fn fetch(
             openai_organization_id: env
                 .secret("OPENAI_ORGANIZATION_ID")
                 .expect("OPENAI_ORGANIZATION_ID is required")
-                .to_string(),
-            sentry_dsn: env
-                .secret("SENTRY_DSN")
-                .expect("SENTRY_DSN is required")
                 .to_string(),
         },
     };

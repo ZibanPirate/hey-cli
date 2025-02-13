@@ -1,8 +1,7 @@
 [package]
 name = "hey-cli-server"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
-authors = ["Zakaria Mansouri <zakman.dev@gmail.com>"]
 
 [package.metadata.release]
 release = false
