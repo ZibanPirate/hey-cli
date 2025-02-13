@@ -1,6 +1,6 @@
 [package]
 name = "hey-cli-app"
-version = "0.1.10"
+version = "0.2.0"
 edition = "2024"
 authors = ["ZibanPirate <zakman.dev@gmail.com>"]
 description = "Ask your CLI, next command will be auto-generated."
