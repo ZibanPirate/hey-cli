@@ -1,0 +1,12 @@
+name = "hey-cli-server"
+main = "build/worker/shim.mjs"
+compatibility_date = "2025-02-08"
+
+[build]
+command = "cargo install -q worker-build && worker-build --release"
+
+[dev]
+port = 3000
+
+[observability]
+enabled = true
