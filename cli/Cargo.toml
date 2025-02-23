@@ -1,7 +1,8 @@
 [package]
 name = "hey-cli-app"
-version = "0.2.0"
-edition = "2024"
+version = "0.2.1"
+edition = { workspace = true }
+publish = false
 authors = ["ZibanPirate <zakman.dev@gmail.com>"]
 description = "Ask your CLI, next command will be auto-generated."
 license = "MIT"
@@ -30,3 +31,4 @@ nest_struct = { workspace = true }
 strum_macros = { workspace = true }
 strum = { workspace = true }
 os_info = { version = "3.7", default-features = false }
+regex = "1"
