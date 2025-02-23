@@ -1,7 +1,7 @@
 use anyhow::Result;
 use hey_cli_common::{GetCliPromptRequestBody, GetCliPromptResponse};
 use nest_struct::nest_struct;
-use std::{path::Path, str::pattern::Pattern, sync::Mutex};
+use std::{path::Path, sync::Mutex};
 use strum_macros::{Display, EnumIter, EnumString};
 
 pub trait State<N> {
@@ -85,7 +85,7 @@ pub trait PortTrait {
     fn set_final_prompt(&self, prompt: String);
     fn to_stdout_format(&self) -> impl Into<String>;
     fn overwrite_file(&self, path: &Path, content: &str) -> Result<()>;
-    fn remove_matches_from_file_content(&self, path: &Path, pattern: impl Pattern) -> Result<()>;
+    fn remove_matches_from_file_content(&self, path: &Path, pattern: &str) -> Result<()>;
     fn append_to_file(&self, path: &Path, content: &str) -> Result<()>;
     async fn ask_server_for_prompt(
         &self,
@@ -142,24 +142,24 @@ impl PortTrait for Mutex<Port> {
     }
 
     #[cfg(test)]
-    fn remove_matches_from_file_content(&self, _: &Path, _: impl Pattern) -> Result<()> {
+    fn remove_matches_from_file_content(&self, _: &Path, _: &str) -> Result<()> {
         Ok(())
     }
     #[cfg(not(test))]
-    fn remove_matches_from_file_content(&self, path: &Path, pattern: impl Pattern) -> Result<()> {
+    fn remove_matches_from_file_content(&self, path: &Path, pattern: &str) -> Result<()> {
+        use regex::Regex;
+
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
-
         if !path.exists() {
             std::fs::write(path, "")?;
         }
-
-        let mut content = std::fs::read_to_string(path)?;
-        content.remove_matches(pattern);
-
-        std::fs::write(path, content)?;
-
+        let content = std::fs::read_to_string(path)?;
+        let escaped_pattern = regex::escape(pattern);
+        let re = Regex::new(&escaped_pattern)?;
+        let new_content = re.replace_all(&content, "").to_string();
+        std::fs::write(path, new_content)?;
         Ok(())
     }
 

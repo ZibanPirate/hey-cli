@@ -1,6 +1,3 @@
-#![feature(pattern)]
-#![feature(string_remove_matches)]
-
 mod call_server;
 mod check_ask;
 mod check_setup;

@@ -1,7 +1,8 @@
 [package]
 name = "hey-cli-common"
 version = "0.1.1"
-edition = "2021"
+edition = { workspace = true }
+publish = false
 authors = ["ZibanPirate <zakman.dev@gmail.com>"]
 description = "Common code for hey-cli"
 license = "MIT"
