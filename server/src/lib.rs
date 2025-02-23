@@ -1,7 +1,6 @@
 use axum::{
-    extract,
+    Json, Router, extract,
     routing::{get, post},
-    Json, Router,
 };
 use hey_cli_common::{CliPrompt, GetCliPromptRequestBody, GetCliPromptResponse};
 use nest_struct::nest_struct;
