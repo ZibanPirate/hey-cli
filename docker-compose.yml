@@ -1,0 +1,5 @@
+services:
+    server:
+        image: ghcr.io/zibanpirate/hey-cli-server:latest
+        ports:
+            - "80:80"
