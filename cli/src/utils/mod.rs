@@ -207,7 +207,7 @@ impl PortTrait for Mutex<Port> {
         query: GetCliPromptRequestBody,
     ) -> Result<GetCliPromptResponse> {
         #[cfg(not(debug_assertions))]
-        let server_url = "http://hey-cli-server.zaqo-cs-8aa.workers.dev";
+        let server_url = "http://hey-cli.zak-man.com";
         #[cfg(debug_assertions)]
         let server_url = "http://0.0.0.0:3000";
 
