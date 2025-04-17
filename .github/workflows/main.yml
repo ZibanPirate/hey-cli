@@ -73,6 +73,15 @@ jobs:
           docker push ghcr.io/zibanpirate/hey-cli-server:latest
         env:
           CR_PAT: ${{ secrets.CR_PAT }}
+      - name: install zcluster
+        run: curl -fsSL https://infra.zak-man.com/install.sh | sh
+      - name: Deploy to zcluster
+        run: zcluster deploy -p hey-cli ./docker-compose.yml
+        env:
+          ADMIN_AUTH_TOKEN: ${{ secrets.ADMIN_AUTH_TOKEN }}
+          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+          OPENAI_ORGANIZATION_ID: ${{ secrets.OPENAI_ORGANIZATION_ID }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
   release:
     permissions:
