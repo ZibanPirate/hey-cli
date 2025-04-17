@@ -10,7 +10,7 @@ RUN apt-get update && \
     apt-get install -y ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-COPY ./target/x86_64-unknown-linux-gnu/release/hey-cli-server $HOME/app/server
+COPY ./target/x86_64-unknown-linux-gnu/release-server/hey-cli-server $HOME/app/server
 WORKDIR $HOME/app
 
 EXPOSE 80
