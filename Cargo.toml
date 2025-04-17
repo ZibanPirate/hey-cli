@@ -26,11 +26,11 @@ reqwest = { version = "0.12", features = [
     "rustls-tls",
 ], default-features = false }
 hey-cli-common = { path = "./common" }
-anyhow = "1.0"
+anyhow = "1"
 nest_struct = "0.5"
 strum_macros = "0.27"
 strum = "0.27"
-dirs = "6.0"
+dirs = "6"
 clap = { version = "4", features = ["std", "derive"], default-features = false }
 os_info = { version = "3", default-features = false }
 regex = "1"
