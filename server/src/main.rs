@@ -1,14 +1,14 @@
 use async_openai::{
+    Client,
     config::OpenAIConfig,
     types::{
         ChatCompletionRequestSystemMessage, ChatCompletionRequestUserMessage,
         CreateChatCompletionRequestArgs,
     },
-    Client,
 };
 use axum::{
-    routing::{get, post},
     Json, Router,
+    routing::{get, post},
 };
 use dotenv::dotenv;
 use hey_cli_common::{CliPrompt, GetCliPromptRequestBody, GetCliPromptResponse};
