@@ -21,20 +21,19 @@ async fn main() {
 
     let ts = tracing_subscriber::registry().with(tracing_subscriber::fmt::layer());
 
-    // todo-zm: bring back sentry
-    // #[cfg(not(debug_assertions))]
-    // let sentry_dsn = std::env::var("SENTRY_DSN").unwrap();
-    // #[cfg(not(debug_assertions))]
-    // let _guard = sentry::init((
-    //     sentry_dsn,
-    //     sentry::ClientOptions {
-    //         release: sentry::release_name!(),
-    //         traces_sample_rate: 1.0,
-    //         ..Default::default()
-    //     },
-    // ));
-    // #[cfg(not(debug_assertions))]
-    // let ts = ts.with(sentry_tracing::layer());
+    #[cfg(not(debug_assertions))]
+    let sentry_dsn = std::env::var("SENTRY_DSN").unwrap();
+    #[cfg(not(debug_assertions))]
+    let _guard = sentry::init((
+        sentry_dsn,
+        sentry::ClientOptions {
+            release: sentry::release_name!(),
+            traces_sample_rate: 1.0,
+            ..Default::default()
+        },
+    ));
+    #[cfg(not(debug_assertions))]
+    let ts = ts.with(sentry_tracing::layer());
 
     ts.init();
 
