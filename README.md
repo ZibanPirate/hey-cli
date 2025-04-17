@@ -35,13 +35,13 @@ top -o cpu -s 5
 
 ## Features
 
--   [x] it just works, no setup or registration needed
--   [ ] extends its capabilities by extensions
--   [x] supported shells
-    -   [x] fish
-    -   [ ] bash
-    -   [x] zsh
-    -   [ ] powershell
+- [x] it just works, no setup or registration needed
+- [ ] extends its capabilities by extensions
+- [x] supported shells
+    - [x] fish
+    - [ ] bash
+    - [x] zsh
+    - [ ] powershell
 
 ## Contributing
 
