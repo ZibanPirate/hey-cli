@@ -604,7 +604,7 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "hey-cli-app"
-version = "0.2.3"
+version = "0.2.4"
 dependencies = [
  "anyhow",
  "clap",
@@ -623,14 +623,14 @@ dependencies = [
 
 [[package]]
 name = "hey-cli-common"
-version = "0.2.3"
+version = "0.2.4"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "hey-cli-server"
-version = "0.2.3"
+version = "0.2.4"
 dependencies = [
  "async-openai",
  "axum",
