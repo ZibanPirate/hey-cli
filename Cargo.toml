@@ -1,12 +1,19 @@
 [workspace]
 resolver = "3"
 members = ["cli", "common", "server"]
+
 package.edition = "2024"
+package.authors = ["ZibanPirate <zakman.dev@gmail.com>"]
+package.readme = "README.md"
+package.license = "MIT"
+package.repository = "https://github.com/ZibanPirate/hey-cli"
+package.version = "0.2.3"
+package.publish = false
 
 [workspace.dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-tokio = { version = "1.42", features = [
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = [
     "rt-multi-thread",
     "macros",
 ], default-features = false }
@@ -18,8 +25,20 @@ reqwest = { version = "0.12", features = [
     "json",
     "rustls-tls",
 ], default-features = false }
-hey-cli-common = { path = "./common", version = "0.1.1" }
-anyhow = "1.0"
+hey-cli-common = { path = "./common" }
+anyhow = "1"
 nest_struct = "0.5"
-strum_macros = "0.26"
-strum = "0.26"
+strum_macros = "0.27"
+strum = "0.27"
+dirs = "6"
+clap = { version = "4", features = ["std", "derive"], default-features = false }
+os_info = { version = "3", default-features = false }
+regex = "1"
+axum = "0.8"
+dotenv = "0.15"
+sentry = { version = "0.37", features = [
+    "rustls",
+    "transport",
+], default-features = false }
+sentry-tracing = "0.37"
+async-openai = "0.28"

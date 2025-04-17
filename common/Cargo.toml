@@ -1,15 +1,8 @@
 [package]
 name = "hey-cli-common"
-version = "0.1.1"
+version = { workspace = true }
 edition = { workspace = true }
-publish = false
-authors = ["ZibanPirate <zakman.dev@gmail.com>"]
-description = "Common code for hey-cli"
-license = "MIT"
-repository = "https://github.com/ZibanPirate/hey-cli"
-readme = "README.md"
-keywords = ["cli", "assistant", "ai"]
-categories = ["command-line-utilities"]
+publish = { workspace = true }
 
 [dependencies]
 serde = { workspace = true }
