@@ -10,13 +10,13 @@ Ask your CLI, next command will be auto-generated.
 **Unix-like Systems (Linux, macOS):**
 
 ```sh
-curl -fsSL http://hey-cli-server.zaqo-cs-8aa.workers.dev/install.sh | sh
+curl -fsSL http://hey-cli.zak-man.com/install.sh | sh
 ```
 
 **Windows:**
 
 ```powershell
-irm http://hey-cli-server.zaqo-cs-8aa.workers.dev/install.ps1 | iex
+irm http://hey-cli.zak-man.com/install.ps1 | iex
 ```
 
 ## Usage

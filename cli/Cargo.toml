@@ -1,6 +1,6 @@
 [package]
 name = "hey-cli-app"
-version = "0.2.1"
+version = "0.2.2"
 edition = { workspace = true }
 publish = false
 authors = ["ZibanPirate <zakman.dev@gmail.com>"]
@@ -14,6 +14,12 @@ categories = ["command-line-utilities"]
 [[bin]]
 name = "hey"
 path = "src/main.rs"
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1
 
 [dependencies]
 tracing-subscriber = { workspace = true }

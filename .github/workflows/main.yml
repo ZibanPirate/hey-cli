@@ -27,6 +27,11 @@ jobs:
         uses: actions/checkout@v4
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+      - name: Install aarch64 cross toolchain
+        if: matrix.os == 'ubuntu-latest' && matrix.target == 'aarch64-unknown-linux-gnu'
+        run: sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
       - name: Install missing target
         run: rustup target add ${{ matrix.target }}
       - name: Build binary
@@ -40,6 +45,43 @@ jobs:
         with:
           name: hey_cli-${{ matrix.target }}
           path: ./dist
+
+  deploy-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+      - name: Install missing target
+        run: rustup target add x86_64-unknown-linux-gnu
+      - name: Build binary
+        run: cargo build -p hey-cli-server --release --target x86_64-unknown-linux-gnu
+      - name: Build docker container
+        run: |
+          docker build . -t ghcr.io/zibanpirate/hey-cli-server:latest
+        env:
+          DOCKER_BUILDKIT: 1
+          CR_PAT: ${{ secrets.CR_PAT }}
+      - name: Push docker container
+        run: |
+          echo $CR_PAT | docker login ghcr.io -u zibanpirate --password-stdin
+          docker push ghcr.io/zibanpirate/hey-cli-server:latest
+        env:
+          CR_PAT: ${{ secrets.CR_PAT }}
+      - name: install zcluster
+        run: curl -fsSL https://infra.zak-man.com/install.sh | sh
+      - name: Add zcluster to PATH
+        run: echo "/home/runner/.zcluster/bin" >> $GITHUB_PATH
+      - name: Deploy to zcluster
+        run: zcluster deploy -p hey-cli ./docker-compose.yml
+        env:
+          ADMIN_AUTH_TOKEN: ${{ secrets.ADMIN_AUTH_TOKEN }}
+          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+          OPENAI_ORGANIZATION_ID: ${{ secrets.OPENAI_ORGANIZATION_ID }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
   release:
     permissions:
@@ -79,11 +121,11 @@ jobs:
             Install on macOS or Linux:
 
             ```sh
-            curl -fsSL http://hey-cli-server.zaqo-cs-8aa.workers.dev/install.sh | sh
+            curl -fsSL http://hey-cli.zak-man.com/install.sh | sh
             ```
 
             Install on Windows:
 
             ```powershell
-            irm http://hey-cli-server.zaqo-cs-8aa.workers.dev/install.ps1 | iex
+            irm http://hey-cli.zak-man.com/install.ps1 | iex
             ```
