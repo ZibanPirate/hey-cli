@@ -58,7 +58,7 @@ jobs:
       - name: Install missing target
         run: rustup target add x86_64-unknown-linux-gnu
       - name: Build binary
-        run: cargo build -p hey-cli-server --profile release-cli --target x86_64-unknown-linux-gnu
+        run: cargo build -p hey-cli-server --profile release-server --target x86_64-unknown-linux-gnu
       - name: Build docker container
         run: |
           docker build . -t ghcr.io/zibanpirate/hey-cli-server:latest
