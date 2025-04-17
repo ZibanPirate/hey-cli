@@ -15,12 +15,6 @@ categories = ["command-line-utilities"]
 name = "hey"
 path = "src/main.rs"
 
-[profile.release]
-strip = true
-opt-level = "z"
-lto = true
-codegen-units = 1
-
 [dependencies]
 tracing-subscriber = { workspace = true }
 clap = { workspace = true }

@@ -37,7 +37,7 @@ jobs:
       - name: Build binary
         env:
           PKG_CONFIG_ALLOW_CROSS: "1"
-        run: cargo build --release --target ${{ matrix.target }} --manifest-path ./cli/Cargo.toml
+        run: cargo build -p hey-cli-app --profile release-cli --target ${{ matrix.target }}
       - name: Move to dist
         run: mkdir -p dist && mv ./target/${{ matrix.target }}/release/hey${{ matrix.os == 'windows-latest' && '.exe' || '' }} dist/hey-${{ matrix.target }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
       - name: Upload artifact
@@ -58,7 +58,7 @@ jobs:
       - name: Install missing target
         run: rustup target add x86_64-unknown-linux-gnu
       - name: Build binary
-        run: cargo build -p hey-cli-server --release --target x86_64-unknown-linux-gnu
+        run: cargo build -p hey-cli-server --profile release-cli --target x86_64-unknown-linux-gnu
       - name: Build docker container
         run: |
           docker build . -t ghcr.io/zibanpirate/hey-cli-server:latest

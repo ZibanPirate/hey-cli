@@ -10,6 +10,17 @@ package.repository = "https://github.com/ZibanPirate/hey-cli"
 package.version = "0.2.3"
 package.publish = false
 
+[profile.release-cli]
+inherits = "release"
+strip = true
+opt-level = "z"
+lto = "fat"
+codegen-units = 1
+
+[profile.release-server]
+inherits = "release"
+opt-level = 3
+
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
