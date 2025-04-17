@@ -22,7 +22,8 @@ async fn main() {
     let ts = tracing_subscriber::registry().with(tracing_subscriber::fmt::layer());
 
     #[cfg(not(debug_assertions))]
-    let sentry_dsn = std::env::var("SENTRY_DSN").unwrap();
+    let sentry_dsn = std::env::var("SENTRY_DSN")
+        .expect("Environment variable SENTRY_DSN must be set in production.");
     #[cfg(not(debug_assertions))]
     let _guard = sentry::init((
         sentry_dsn,
