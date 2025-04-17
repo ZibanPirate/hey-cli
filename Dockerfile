@@ -5,6 +5,11 @@ ENV SHELL=/bin/bash
 ENV HOME="/root"
 ENV PORT=80
 
+# Install CA certificates
+RUN apt-get update && \
+    apt-get install -y ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY ./target/x86_64-unknown-linux-gnu/release/hey-cli-server $HOME/app/server
 WORKDIR $HOME/app
 

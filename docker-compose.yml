@@ -1,5 +1,17 @@
 services:
-    server:
+    hey-cli-server:
         image: ghcr.io/zibanpirate/hey-cli-server:latest
-        ports:
-            - "80:80"
+        pull_policy: always
+        restart: unless-stopped
+        environment:
+            - VIRTUAL_HOST=hey-cli.zak-man.com
+            - LETSENCRYPT_HOST=hey-cli.zak-man.com
+            - OPENAI_KEY={{OPENAI_KEY}}
+            - OPENAI_ORGANIZATION_ID={{OPENAI_ORGANIZATION_ID}}
+            - SENTRY_DSN={{SENTRY_DSN}}
+        networks:
+            - main-infra-network
+
+networks:
+    main-infra-network:
+        external: true
