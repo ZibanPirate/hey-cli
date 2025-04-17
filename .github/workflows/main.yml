@@ -94,7 +94,7 @@ jobs:
       - name: Get version
         id: get_version
         run: |
-          echo "VERSION=$(grep '^version = ' cli/Cargo.toml | cut -d'"' -f2)" >> $GITHUB_OUTPUT
+          echo "VERSION=$(grep '^package.version = ' Cargo.toml | cut -d'=' -f2 | tr -d ' \"')" >> $GITHUB_OUTPUT
       - name: Check if release exists
         id: check_release
         run: |
