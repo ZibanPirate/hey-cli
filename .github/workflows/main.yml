@@ -121,11 +121,11 @@ jobs:
             Install on macOS or Linux:
 
             ```sh
-            curl -fsSL http://hey-cli.zak-man.com/install.sh | sh
+            curl -fsSL https://hey-cli.zak-man.com/install.sh | sh
             ```
 
             Install on Windows:
 
             ```powershell
-            irm http://hey-cli.zak-man.com/install.ps1 | iex
+            irm https://hey-cli.zak-man.com/install.ps1 | iex
             ```
