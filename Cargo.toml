@@ -48,9 +48,6 @@ os_info = { version = "3", default-features = false }
 regex = "1"
 axum = "0.8"
 dotenv = "0.15"
-sentry = { version = "0.37", features = [
-    "rustls",
-    "transport",
-], default-features = false }
+sentry = { version = "0.37", features = ["rustls"], default-features = false }
 sentry-tracing = "0.37"
 async-openai = "0.28"
