@@ -8,13 +8,13 @@ cli-run = { git = "https://github.com/zibanpirate/cli-rs.git" }
 ---
 
 fn main() {
-    println!("Insuring cargo binstall is installed ...");
+    println!("Ensuring cargo binstall is installed ...");
     cli_run::cli_run("cargo", vec!["install", "cargo-binstall"]);
 
-    println!("Insuring cross is binstalled ...");
+    println!("Ensuring cross is binstalled ...");
     cli_run::cli_run("cargo", vec!["binstall", "cross", "-y"]);
 
-    println!("Insuring docker is running ...");
+    println!("Ensuring docker is running ...");
     cli_run::cli_run("docker", vec!["ps"]);
 
     println!("Building ./hey-cli-server for ubuntu x86_64 ...");
