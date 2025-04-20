@@ -84,7 +84,6 @@ jobs:
           ADMIN_AUTH_TOKEN: ${{ secrets.ADMIN_AUTH_TOKEN }}
           OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
           OPENAI_ORGANIZATION_ID: ${{ secrets.OPENAI_ORGANIZATION_ID }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
   release:
     permissions:
