@@ -43,7 +43,8 @@ fn main() {
     );
 
     println!("Logging in to GitHub Container Registry ...");
-    let gh_token = std::env::var("DOCKER_REGISTRY_PASSWORD").expect("DOCKER_REGISTRY_PASSWORD environment variable not set");
+    let gh_token = std::env::var("DOCKER_REGISTRY_PASSWORD")
+        .expect("DOCKER_REGISTRY_PASSWORD environment variable not set");
     cli_run::cli_run(
         "docker",
         vec![
@@ -59,21 +60,13 @@ fn main() {
     println!("Pushing docker image ...");
     cli_run::cli_run(
         "docker",
-        vec![
-            "push",
-            "ghcr.io/zibanpirate/hey-cli-server:latest",
-        ],
+        vec!["push", "ghcr.io/zibanpirate/hey-cli-server:latest"],
     );
 
     println!("Deploying to zcluster ...");
     cli_run::cli_run(
         "zcluster",
-        vec![
-            "deploy",
-            "-p",
-            "hey-cli",
-            "./docker-compose.yml",
-        ],
+        vec!["deploy", "-p", "hey-cli", "./docker-compose.yml"],
     );
     println!("Done!");
 }
