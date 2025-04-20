@@ -1,5 +1,20 @@
+[jobs.dev]
+command = ["cargo", "run", "-p", "hey-cli-server", "--color", "always"]
+background = false
+on_change_strategy = "kill_then_restart"
+need_stdout = true
+allow_warnings = true
+
 [jobs.install]
-command = ["cargo", "install", "--force", "--path", ".", "--color", "always"]
+command = [
+    "cargo",
+    "install",
+    "--force",
+    "--path",
+    "./cli",
+    "--color",
+    "always",
+]
 allow_warnings = true
 
 [jobs.test]
@@ -13,6 +28,8 @@ on_change_strategy = "kill_then_restart"
 command = [
     "cargo",
     "run",
+    "-p",
+    "hey-cli-app",
     "--color",
     "always",
     "--",
@@ -30,6 +47,8 @@ allow_warnings = true
 command = [
     "cargo",
     "run",
+    "-p",
+    "hey-cli-app",
     "--color",
     "always",
     "--",
